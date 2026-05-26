@@ -1,6 +1,6 @@
 ﻿namespace VetClinic.Domain.Entities;
 
-public class Customer
+public class Customer : Person
 {
     
 }

@@ -1,6 +1,6 @@
 ﻿namespace VetClinic.Domain.Entities;
 
-public class ClinicAppointment
+public class ClinicAppointment : Appointment
 {
     
 }

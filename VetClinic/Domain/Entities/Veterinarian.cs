@@ -1,6 +1,6 @@
 ﻿namespace VetClinic.Domain.Entities;
 
-public class Veterinarian
+public class Veterinarian : Person
 {
     
 }

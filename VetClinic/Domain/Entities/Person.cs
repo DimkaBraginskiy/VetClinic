@@ -1,6 +1,6 @@
 ﻿namespace VetClinic.Domain.Entities;
 
-public class Person
+public abstract class Person
 {
     
 }

@@ -1,6 +1,6 @@
 ﻿namespace VetClinic.Domain.Entities;
 
-public class HomeAppointment : Appointment
+public class Discount
 {
     
 }
