@@ -2,5 +2,5 @@
 
 public class HomeAppointment : Appointment
 {
-    
+    public Address Address { get; private set; }
 }
