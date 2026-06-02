@@ -10,7 +10,7 @@ public abstract class Person
 
     public Person() { }
 
-    protected Person(string firstName, string lastName, string? middleName, string email)
+    protected Person(string firstName, string lastName, string email, string? middleName = null)
     {
         Validate(firstName, lastName, middleName, email);
         FirstName = firstName;

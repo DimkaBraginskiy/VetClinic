@@ -9,7 +9,8 @@ public class Customer : Person
 
     public Customer() {}
 
-    public Customer(string firstName, string lastName, string? middleName, string email, decimal loyaltyPoints) : base(firstName, lastName, middleName, email)
+    public Customer(string firstName, string lastName, string email, decimal loyaltyPoints, string? middleName = null) 
+        : base(firstName, lastName, middleName, email)
     {
         Validate(loyaltyPoints);
         LoyaltyPoints = loyaltyPoints;
