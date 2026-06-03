@@ -12,4 +12,7 @@ public class Animal
     
     public AnimalSpecies Species { get; private set; }
     public string Breed { get; private set; }
+    
+    public Customer Customer { get; private set; }
+    public Guid CustomerId { get; private set; }
 }

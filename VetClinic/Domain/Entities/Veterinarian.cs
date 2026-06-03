@@ -6,12 +6,18 @@ public class Veterinarian : Person
 {
     public VeterinarianType Type { get; private set; }
     public decimal Salary { get; private set; }
-    public DateTime EmploymentDate { get; private set; }
-
-    public ICollection<Shift> Shifts = new List<Shift>();
-    public ICollection<Treatment> Treatments = new List<Treatment>();
-    public ICollection<Appointment> Appointments = new List<Appointment>();
-    public ICollection<Clinic> Clinics = new List<Clinic>();
+    public DateTime EmploymentDate { get; private set; }    
+    
+    public Clinic Clinic { get; private set; }
+    public Guid ClinicId { get; private set; }
+    
+    private readonly List<Shift> _shifts = new();
+    private readonly List<Treatment> _treatments = new();
+    private readonly List<Appointment> _appointments = new();
+    
+    public IReadOnlyCollection<Shift> Shifts => _shifts.AsReadOnly();
+    public IReadOnlyCollection<Treatment> Treatments => _treatments.AsReadOnly();
+    public IReadOnlyCollection<Appointment> Appointments => _appointments.AsReadOnly();
 
     public Veterinarian(
         VeterinarianType type,
@@ -59,11 +65,46 @@ public class Veterinarian : Person
 
     public void AddTreatment(Treatment treatment)
     {
-        if (treatment.Type == TreatmentType.Surgery && Type != VeterinarianType.Surgeon)
-        {
+        if (treatment.Type is TreatmentType.Surgery or TreatmentType.Chiropractic && Type != VeterinarianType.Surgeon){
             throw new InvalidOperationException("Only a surgeon can perform a surgery");
         }
         
-        Treatments.Add(treatment);
+        _treatments.Add(treatment);
+    }
+
+    public void RemoveTreatment(TreatmentType treatmentType)
+    {
+        if (Treatments.Count == 1)
+            throw new InvalidOperationException("Veterinarian must have at least one treatment.");
+        
+        var treatment = Treatments.FirstOrDefault(t => t.Type.Equals(treatmentType));
+        if (treatment == null)
+        {
+            throw new ArgumentException("Treatment with the given type does not exist");
+        }
+
+        _treatments.Remove(treatment);
+    }
+
+    public void AddShift(Shift shift)
+    {
+        var shiftOverlap = Shifts.FirstOrDefault(s => s.StartTime.Day.Equals(shift.StartTime.Day));
+        if (shiftOverlap != null)
+        {
+            throw new InvalidOperationException("A veterinarian can not have 2 shifts on the same day");
+        }
+     
+        _shifts.Add(shift);
+    }
+
+    public void RemoveShift(Shift shift)
+    {
+        var res = Shifts.Where(s => s.Equals(shift));
+        if (!res.Any())
+        {
+            throw new ArgumentException("Shift with the given parameters does not exist");
+        }
+
+        _shifts.Remove(shift);
     }
 }
