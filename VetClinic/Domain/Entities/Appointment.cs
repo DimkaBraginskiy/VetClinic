@@ -166,6 +166,22 @@ public class Appointment
         if (!IsValidTransition(Status, newStatus))
             throw new InvalidOperationException($"Cannot transition from {Status} to {newStatus}.");
         Status = newStatus;
+
+        if (Treatment != null)
+        {
+            switch (newStatus)
+            {
+                case AppointmentStatus.InProgress:
+                    Treatment.TransitionTo(TreatmentStatus.InProgress);
+                    break;
+                case AppointmentStatus.Completed:
+                    Treatment.TransitionTo(TreatmentStatus.Completed);
+                    break;
+                case AppointmentStatus.Cancelled:
+                    Treatment.RemoveCancelled();
+                    break;
+            }
+        }
     }
 
     private bool IsValidTransition(AppointmentStatus current, AppointmentStatus next) =>
@@ -194,12 +210,18 @@ public class Appointment
         _animals.Remove(animal);
     }
 
-    public void AddDiscount(Discount discount)
+    public void ApplyDiscount(Discount discount)
     {
         ArgumentNullException.ThrowIfNull(discount);
+        
         if (_discounts.Any(d => d.Id == discount.Id))
             throw new InvalidOperationException("Discount already applied.");
+
+        if (Status != AppointmentStatus.Scheduled)
+            throw new InvalidOperationException("Discounts can be applied only to a scheduled appointment");
+        
         _discounts.Add(discount);
+        discount.AddAppointment(this);
     }
 
     public decimal GetTotalPrice()

@@ -28,4 +28,23 @@ public class Treatment
         VeterinarianId = veterinarian.Id;
         Veterinarian = veterinarian;
     }
+    
+    public void TransitionTo(TreatmentStatus next)
+    {
+        bool valid = (Status, next) switch
+        {
+            (TreatmentStatus.Scheduled,  TreatmentStatus.InProgress) => true,
+            (TreatmentStatus.InProgress, TreatmentStatus.Completed)  => true,
+            _ => false
+        };
+        if (!valid)
+            throw new InvalidOperationException($"Cannot transition from {Status} to {next}.");
+        Status = next;
+    }
+    
+    internal void RemoveCancelled()
+    {
+        AppointmentId = null;
+        Appointment = null;
+    }
 }

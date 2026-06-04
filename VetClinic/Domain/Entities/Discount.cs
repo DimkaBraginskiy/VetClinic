@@ -6,6 +6,9 @@ public class Discount
     public decimal Percentage { get; private set; }
     public string PromoCode { get; private set; } = null!;
 
+    private readonly List<Appointment> _appointments = new();
+    public IReadOnlyCollection<Appointment> Appointments => _appointments.AsReadOnly();
+
     protected Discount() { }
 
     public Discount(decimal percentage, string promoCode)
@@ -17,5 +20,11 @@ public class Discount
 
         Percentage = percentage;
         PromoCode = promoCode.Trim().ToUpper();
+    }
+
+    internal void AddAppointment(Appointment appointment)
+    {
+        if(!_appointments.Any(a => a.Id == appointment.Id))
+            _appointments.Add(appointment);
     }
 }
