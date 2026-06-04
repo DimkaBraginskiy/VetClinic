@@ -1,16 +1,13 @@
-﻿using Microsoft.Extensions.Options;
-
-namespace VetClinic.Domain.Entities;
+﻿namespace VetClinic.Domain.Entities;
 
 public class Veterinarian : Person
 {
-    public Guid Id { get; private set; } = Guid.NewGuid();
     public VeterinarianType Type { get; private set; }
     public decimal Salary { get; private set; }
     public DateTime EmploymentDate { get; private set; }
 
     public Guid ClinicId { get; private set; }
-    public Clinic Clinic { get; private set; }
+    public Clinic Clinic { get; private set; } = null!;
     
     private readonly List<Shift> _shifts = new();
     private readonly List<Treatment> _treatments = new();
@@ -20,7 +17,7 @@ public class Veterinarian : Person
     public IReadOnlyCollection<Appointment> Appointments => 
         _appointments.OrderBy(a => a.StartDate).ToList().AsReadOnly();
     
-    public Veterinarian() { }
+    protected Veterinarian() { }
 
     public Veterinarian(
         VeterinarianType type,
@@ -113,13 +110,9 @@ public class Veterinarian : Person
 
     public void RemoveShift(Shift shift)
     {
-        var res = Shifts.Where(s => s.Equals(shift));
-        if (!res.Any())
-        {
-            throw new ArgumentException("Shift with the given parameters does not exist");
-        }
-
-        _shifts.Remove(shift);
+        var found = _shifts.FirstOrDefault(s => s.Id == shift.Id)
+                    ?? throw new ArgumentException("Shift not found.");
+        _shifts.Remove(found);
     }
 
     public void AddAppointment(Appointment appointment)

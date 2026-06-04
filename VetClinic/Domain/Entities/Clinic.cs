@@ -1,18 +1,18 @@
-﻿using Microsoft.Extensions.Options;
-
-namespace VetClinic.Domain.Entities;
+﻿namespace VetClinic.Domain.Entities;
 
 public class Clinic
 {
-    public Guid Id { get; private set; }
-    
-    public Address Address { get; private set; }
+    public Guid Id { get; private set; } = Guid.NewGuid();
 
-    private readonly Dictionary<Guid, Veterinarian> _veterinarians = new();
-    public IReadOnlyDictionary<Guid, Veterinarian> Veterinarians => _veterinarians.AsReadOnly();
+    public Address Address { get; private set; } = null!;
+
+    private readonly Dictionary<string, Veterinarian> _veterinarians = new();
+    public IReadOnlyDictionary<string, Veterinarian> Veterinarians => _veterinarians.AsReadOnly();
 
     private readonly List<Cabinet> _cabinets = new();
     public IReadOnlyCollection<Cabinet> Cabinets => _cabinets.AsReadOnly();
+    
+    protected Clinic() { }
 
     public Clinic(Address address, List<Cabinet> cabinets, List<Veterinarian> veterinarians)
     {
@@ -21,7 +21,7 @@ public class Clinic
 
         foreach (var cabinet in cabinets)
         {
-            AddCabinet(cabinet);
+            AddCabinet(cabinet.Floor, cabinet.Number);
         }
 
         foreach (var veterinarian in veterinarians)
@@ -48,84 +48,36 @@ public class Clinic
         }
     }
     
-    public void AddVeterinarian(Veterinarian veterinarian) 
-    { 
-        if (veterinarian == null) 
-        { 
-            throw new ArgumentException("Veterinarian can not be null");
-        }
-
-        if (_veterinarians.ContainsKey(veterinarian.Id)) 
-        { 
-            throw new ArgumentException("Veterinarian with the given id already exists");
-        }
-        
-        _veterinarians.Add(veterinarian.Id, veterinarian);
-    }
-    public void AddCabinet(Cabinet cabinet) 
-    { 
-        if (cabinet == null) 
-        { 
-            throw new ArgumentException("Cabinet can not be null");
-        }
-        
-        _cabinets.Add(cabinet);
-    }
-
-
-    public class Cabinet
+    public string AddVeterinarian(Veterinarian veterinarian)
     {
-        public Guid Id { get; private set; }
-        
-        public int Floor { get; private set; }
-        public int Number { get; private set; }
-        
-        public Clinic Clinic { get; private set; }
-        public Guid ClinicId { get; private set; }
-        
-        private readonly List<ClinicAppointment> _appointments = new();
-        public IReadOnlyCollection<ClinicAppointment> Appointments =>   
-            _appointments.AsReadOnly();
-        
-        public Cabinet(int floor, int number, Clinic clinic)
-        {
-            Validate(floor, number, clinic);
-            Floor = floor;
-            Number = number;
-            Clinic = clinic;
-        }
-        
-        private void Validate(int floor, int number, Clinic clinic)
-        {
-            if (floor < 0)
-            {
-                throw new ArgumentException("Floor can not be negative");
-            }
+        if (veterinarian == null)
+            throw new ArgumentNullException(nameof(veterinarian));
+        if (_veterinarians.Values.Any(v => v.Id == veterinarian.Id))
+            throw new InvalidOperationException("Veterinarian already registered in this clinic.");
 
-            if (number <= 0)
-            {
-                throw new ArgumentException("Number must be greater than 0");
-            }
+        var clinicVetId = $"VET-{Id.ToString()[..8].ToUpper()}-{_veterinarians.Count + 1:D3}";
+        _veterinarians.Add(clinicVetId, veterinarian);
+        return clinicVetId; // caller gets the clinic-assigned id back
+    }
 
-            if (clinic == null)
-            {
-                throw new ArgumentException("Clinic can not be null");
-            }
-        }
-        
-        public bool IsAvailable(DateTime time)
-        {
-            return !_appointments.Any(a =>
-                a.Status != AppointmentStatus.Cancelled &&
-                a.StartDate <= time);
-        }
+    public Veterinarian? GetVeterinarianByClinicVetId(string clinicVetId)
+        => _veterinarians.TryGetValue(clinicVetId, out var vet) ? vet : null;
+    
+    public Cabinet AddCabinet(int floor, int number)
+    {
+        var cabinet = new Cabinet(floor, number, this);
+        _cabinets.Add(cabinet);
+        return cabinet;
+    }
+    
+    public void RemoveCabinet(Guid cabinetId)
+    {
+        if (_cabinets.Count == 1)
+            throw new InvalidOperationException("Clinic must have at least one cabinet.");
 
-        public void AddAppointment(ClinicAppointment appointment)       
-        {
-            if (!IsAvailable(appointment.StartDate))
-                throw new InvalidOperationException("Cabinet is not available at this time.");
+        var cabinet = _cabinets.FirstOrDefault(c => c.Id == cabinetId)
+                      ?? throw new ArgumentException("Cabinet not found.");
 
-            _appointments.Add(appointment);
-        }
+        _cabinets.Remove(cabinet);
     }
 }

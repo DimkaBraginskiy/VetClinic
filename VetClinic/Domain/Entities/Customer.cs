@@ -1,11 +1,13 @@
 ﻿namespace VetClinic.Domain.Entities;
 
 public class Customer : Person
-{
+{ 
     public decimal LoyaltyPoints { get; private set; }
 
-    public ICollection<Animal> Animals { get; private set; } = new List<Animal>();
-    public ICollection<Appointment> Appointments { get; private set; } = new List<Appointment>();
+    private readonly List<Animal> _animals = new();
+    private readonly List<Appointment> _appointments = new();
+    public IReadOnlyCollection<Animal> Animals => _animals.AsReadOnly();
+    public IReadOnlyCollection<Appointment> Appointments => _appointments.AsReadOnly();
 
     public Customer() {}
 
@@ -44,13 +46,10 @@ public class Customer : Person
         LoyaltyPoints += amount;
     }
     
-    public void GetAnimalById(Guid animalId)
+    public Animal GetAnimalById(Guid animalId)
     {
-        var animal = Animals.FirstOrDefault(a => a.Id == animalId);
-        if (animal == null)
-        {
-            throw new ArgumentException("Animal with the given id does not exist");
-        }
+        return _animals.FirstOrDefault(a => a.Id == animalId)
+               ?? throw new ArgumentException("Animal not found.");
     }
 
     public void AddAnimal(Animal? animal)
@@ -60,7 +59,7 @@ public class Customer : Person
             throw new ArgumentException("Animal can not be null");
         }
         
-        Animals.Add(animal);
+        _animals.Add(animal);
     }
 
     public void RemoveAnimalById(Guid animalId)
@@ -71,16 +70,13 @@ public class Customer : Person
             throw new ArgumentException("Animal with the given id does not exist");
         }
         
-        Animals.Remove(animal);
+        _animals.Remove(animal);
     }
     
-    public void GetAppointmentById(Guid appointmentId)
+    public Appointment GetAppointmentById(Guid appointmentId)
     {
-        var appointment = Appointments.FirstOrDefault(a => a.Id == appointmentId);
-        if (appointment == null)
-        {
-            throw new ArgumentException("Appointment with the given id does not exist");
-        }
+        return _appointments.FirstOrDefault(a => a.Id == appointmentId)
+               ?? throw new ArgumentException("Appointment not found.");
     }
     
     public void AddAppointment(Appointment? appointment)
@@ -90,7 +86,7 @@ public class Customer : Person
             throw new ArgumentException("Appointment can not be null");
         }
         
-        Appointments.Add(appointment);
+        _appointments.Add(appointment);
     }
     
     public void RemoveAppointmentById(Guid appointmentId)
@@ -101,6 +97,6 @@ public class Customer : Person
             throw new ArgumentException("Appointment with the given id does not exist");
         }
         
-        Appointments.Remove(appointment);
+        _appointments.Remove(appointment);
     }
 }

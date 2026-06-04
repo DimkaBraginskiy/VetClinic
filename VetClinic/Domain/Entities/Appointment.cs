@@ -9,8 +9,7 @@ public abstract class Appointment
     public AppointmentStatus Status { get; private set; } = AppointmentStatus.Scheduled;
     public AppointmentType Type { get; private set; }
     public DateTime StartDate { get; private set; }
-    public int DurationMinutes { get; private set; }
-    public DateTime EndDate => StartDate.AddMinutes(DurationMinutes);
+    public DateTime EndDate => StartDate.AddMinutes(GetTotalDuration());
     
     public decimal BasePrice { get; private set; }
     public string? PaymentDetails { get; private set; }
@@ -28,22 +27,20 @@ public abstract class Appointment
     public IReadOnlyCollection<Animal> Animals => _animals.AsReadOnly();
     public ICollection<Discount> Discounts => _discounts.AsReadOnly();
 
-    public Appointment() { }
+    protected Appointment() { }
 
     protected Appointment(
         AppointmentType type,
         DateTime startDate,
-        int durationMinutes,
         decimal basePrice,
         Guid customerId,
         Guid veterinarianId,
         Treatment? treatment = null)
     {
-        Validate(type, startDate, durationMinutes, basePrice, customerId, veterinarianId, treatment);
+        Validate(type, startDate, basePrice, customerId, veterinarianId, treatment);
 
         Type = type;
         StartDate = startDate;
-        DurationMinutes = durationMinutes;
         BasePrice = basePrice;
         CustomerId = customerId;
         VeterinarianId = veterinarianId;
@@ -54,15 +51,12 @@ public abstract class Appointment
             Treatment = treatment;
         }
     }
-    
-    private void Validate(AppointmentType type, DateTime startDate, int durationMinutes, 
+
+    private void Validate(AppointmentType type, DateTime startDate, 
         decimal basePrice, Guid customerId, Guid vetId, Treatment? treatment)
     {
         if (startDate < DateTime.Now)
             throw new ArgumentException("Appointment start date cannot be in the past.");
-
-        if (durationMinutes <= 0)
-            throw new ArgumentException("Duration must be positive.");
 
         if (basePrice < 0)
             throw new ArgumentException("Base price cannot be negative.");
@@ -77,6 +71,74 @@ public abstract class Appointment
             throw new InvalidOperationException("Consultation Appointment cannot have a Treatment.");
     }
     
+    public OnlineAppointment ChangeToOnline()
+    {
+        if (this is OnlineAppointment)
+            throw new InvalidOperationException("Appointment is already in Online mode.");
+        if (Status != AppointmentStatus.Scheduled)
+            throw new InvalidOperationException("Mode can only be changed while Scheduled.");
+        if (Type == AppointmentType.Treatment)
+            throw new InvalidOperationException("Treatment appointments cannot be switched to Online.");
+
+        var newAppt = new OnlineAppointment(Type, StartDate, BasePrice, CustomerId, VeterinarianId);
+        CopyCommonStateTo(newAppt);
+        return newAppt;
+    }
+
+    public HomeAppointment ChangeToHome(Address homeAddress)
+    {
+        if (this is HomeAppointment)
+            throw new InvalidOperationException("Appointment is already in Home mode.");
+        if (Status != AppointmentStatus.Scheduled)
+            throw new InvalidOperationException("Mode can only be changed while Scheduled.");
+        ArgumentNullException.ThrowIfNull(homeAddress);
+
+        var newAppt = new HomeAppointment(Type, StartDate, BasePrice, CustomerId, VeterinarianId, homeAddress, Treatment);
+        CopyCommonStateTo(newAppt);
+        return newAppt;
+    }
+
+    public ClinicAppointment ChangeToClinic(DateTime arriveTime, Cabinet cabinet)
+    {
+        if (this is ClinicAppointment)
+            throw new InvalidOperationException("Appointment is already in Clinic mode.");
+        if (Status != AppointmentStatus.Scheduled)
+            throw new InvalidOperationException("Mode can only be changed while Scheduled.");
+        ArgumentNullException.ThrowIfNull(cabinet);
+
+        var newAppt = new ClinicAppointment(Type, StartDate, BasePrice, CustomerId, VeterinarianId, arriveTime, cabinet, Treatment);
+        CopyCommonStateTo(newAppt);
+        return newAppt;
+    }
+
+
+    private void CopyCommonStateTo(Appointment target)
+    {
+        foreach (var animal in _animals)
+            target.AddAnimal(animal);
+        foreach (var discount in _discounts)
+            target.AddDiscount(discount);
+    }
+
+    public void TransitionTo(AppointmentStatus newStatus)
+    {
+        if(!IsValidTransition(Status, newStatus))
+            throw new InvalidOperationException($"Cannot transition from {Status} to {newStatus}.");
+
+        Status = newStatus;
+    }
+
+    private bool IsValidTransition(AppointmentStatus current, AppointmentStatus toStatus)
+    {
+        return (current, toStatus) switch
+        {
+            (AppointmentStatus.Scheduled, AppointmentStatus.InProgress) => true,
+            (AppointmentStatus.Scheduled, AppointmentStatus.Cancelled) => true,
+            (AppointmentStatus.InProgress, AppointmentStatus.Completed) => true,
+            _ => false
+        };
+    }
+
     public void AddAnimal(Animal animal)
     {
         if (animal == null)
@@ -108,8 +170,17 @@ public abstract class Appointment
         _discounts.Add(discount);
     }
     
-    public void ChangeStatus(AppointmentStatus newStatus)
+    public decimal GetTotalPrice()
     {
-        
+        return BasePrice + Treatment.Price;
+    }
+    public string GetTitle()
+    {
+        return Animals.Count > 1 ? $"{Treatment.Type} for multiple animals" : $"{Treatment.Type} for {Animals.FirstOrDefault()?.Name}";
+    }
+
+    public int GetTotalDuration()
+    {
+        return Type == AppointmentType.Treatment ? (int)Treatment.Duration : 30;
     }
 }
