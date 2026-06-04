@@ -1,4 +1,6 @@
-﻿namespace VetClinic.Domain.Entities;
+﻿using VetClinic.Domain.Enums;
+
+namespace VetClinic.Domain.Entities;
 
 public class Cabinet
 {
@@ -10,8 +12,8 @@ public class Cabinet
     public Clinic Clinic { get; private set; }
     public Guid ClinicId { get; private set; }
         
-    private readonly List<ClinicAppointment> _appointments = new();
-    public IReadOnlyCollection<ClinicAppointment> Appointments =>   
+    private readonly List<Appointment> _appointments = new();
+    public IReadOnlyCollection<Appointment> Appointments =>
         _appointments.AsReadOnly();
 
     protected Cabinet() { }
@@ -54,8 +56,10 @@ public class Cabinet
             requestedEnd > a.StartDate);
     }
 
-    public void AddAppointment(ClinicAppointment appointment)       
+    public void AddAppointment(Appointment appointment)       
     {
+        if(appointment.Mode != AppointmentMode.Clinic)
+            throw new InvalidOperationException("Only clinic appointments can be added to a cabinet.");
         if (!IsAvailable(appointment.StartDate, appointment.EndDate))
             throw new InvalidOperationException("Cabinet is not available at this time.");
 
