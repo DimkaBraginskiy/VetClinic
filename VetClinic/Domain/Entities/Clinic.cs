@@ -7,10 +7,11 @@ public class Clinic
     public Address Address { get; private set; } = null!;
 
     private readonly Dictionary<string, Veterinarian> _veterinarians = new();
-    public IReadOnlyDictionary<string, Veterinarian> Veterinarians => _veterinarians.AsReadOnly();
-
     private readonly List<Cabinet> _cabinets = new();
+    private readonly List<Shift> _shifts = new();
+    public IReadOnlyDictionary<string, Veterinarian> Veterinarians => _veterinarians.AsReadOnly();
     public IReadOnlyCollection<Cabinet> Cabinets => _cabinets.AsReadOnly();
+    public IReadOnlyCollection<Shift> Shifts => _shifts.AsReadOnly();
     
     protected Clinic() { }
 
@@ -79,5 +80,16 @@ public class Clinic
                       ?? throw new ArgumentException("Cabinet not found.");
 
         _cabinets.Remove(cabinet);
+    }
+    
+    public void AddShift(Shift shift)
+    {
+        if (_shifts.Any(s => s.Id == shift.Id)) return;
+        _shifts.Add(shift);
+    }
+
+    public void RemoveShift(Shift shift)
+    {
+        _shifts.Remove(shift);
     }
 }
