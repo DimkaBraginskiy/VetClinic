@@ -100,13 +100,26 @@ public class Veterinarian : Person
         _treatments.Remove(treatment);
     }
 
+    public bool IsAvailable(DateTime start, DateTime end)
+    {
+        var hasCoveringShift = _shifts.Any(s => s.StartTime <= start && s.EndTime >= end);
+        if (!hasCoveringShift) return false;
+
+        var hasOverlap = _appointments.Any(a =>
+            a.Status != AppointmentStatus.Cancelled &&
+            start < a.EndDate && end > a.StartDate);
+
+        return !hasOverlap;
+    }
+
     public void AddShift(Shift shift)
     {
-        if (Shifts.Any(s => s.StartTime.Date == shift.StartTime.Date))
-        {
-            throw new InvalidOperationException("A veterinarian can not have 2 shifts on the same day");
-        }
-     
+        var hasOverlap = _shifts.Any(s =>
+            shift.StartTime < s.EndTime && shift.EndTime > s.StartTime);
+
+        if (hasOverlap)
+            throw new InvalidOperationException("Shift overlaps with an existing shift.");
+
         _shifts.Add(shift);
     }
 
@@ -134,28 +147,10 @@ public class Veterinarian : Person
 
     private void ValidateAppointment(Appointment appointment)
     {
-        var hasShiftDuringDay = _shifts.Any(s => 
-            s.StartTime.Date == appointment.StartDate.Date);
-
-        if (!hasShiftDuringDay)
-        {
+        if (!IsAvailable(appointment.StartDate, appointment.EndDate))
             throw new InvalidOperationException(
-                $"Veterinarian has no shift on {appointment.StartDate.Date:yyyy-m-dd}. Can not assign shift");
-        }
-
-        var hasOverlap = _appointments.Any(a =>
-            a.Status != AppointmentStatus.Cancelled && HasTimeOverlap(a, appointment));
-
-        if (hasOverlap)
-        {
-            throw new InvalidOperationException("Appointment which you want to create overlaps with existing one");
-        }
-    }
-
-    private bool HasTimeOverlap(Appointment existingAppointment, Appointment newAppointment)
-    {
-        return newAppointment.StartDate < existingAppointment.EndDate &&
-               newAppointment.EndDate > existingAppointment.StartDate;
+                $"Veterinarian is not available from {appointment.StartDate:HH:mm} to {appointment.EndDate:HH:mm} " +
+                $"on {appointment.StartDate:yyyy-MM-dd}. No covering shift or overlapping appointment.");
     }
     
     public void RemoveAppointment(Guid appointmentId)
