@@ -17,8 +17,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="API\Controller\" />
-      <Folder Include="Application\Service\" />
       <Folder Include="Infrastructure\Repository\" />
     </ItemGroup>
 
