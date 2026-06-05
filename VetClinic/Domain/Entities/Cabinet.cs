@@ -47,7 +47,7 @@ public class Cabinet
             throw new ArgumentException("Clinic can not be null");
         }
     }
-        
+    
     public bool IsAvailable(DateTime requestedStart, DateTime requestedEnd)
     {
         return !_appointments.Any(a =>

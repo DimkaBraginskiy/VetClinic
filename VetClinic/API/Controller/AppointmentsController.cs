@@ -41,4 +41,17 @@ public class AppointmentsController : ControllerBase
         catch (ArgumentException ex)         { return BadRequest(ex.Message); }
         catch (InvalidOperationException ex) { return UnprocessableEntity(ex.Message); }
     }
+    
+    [HttpPost("clinic")]
+    public async Task<IActionResult> ScheduleClinic([FromBody] ClinicAppointmentRequestDto dto)
+    {
+        try
+        {
+            var result = await _appointmentsService.ScheduleClinicAsync(dto);
+            return CreatedAtAction(nameof(ScheduleClinic), new { id = result.Id }, result);
+        }
+        catch (KeyNotFoundException ex)      { return NotFound(ex.Message); }
+        catch (ArgumentException ex)         { return BadRequest(ex.Message); }
+        catch (InvalidOperationException ex) { return UnprocessableEntity(ex.Message); }
+    }
 }

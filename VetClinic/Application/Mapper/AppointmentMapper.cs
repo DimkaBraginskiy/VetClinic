@@ -8,18 +8,18 @@ public static class AppointmentMapper
     public static ScheduledAppointmentResponseDto ToResponseDto(Appointment appt) =>
         new()
         {
-            Id           = appt.Id,
-            Status       = appt.Status,
-            Type         = appt.Type,
-            Mode         = appt.Mode,
-            StartDate    = appt.StartDate,
-            EndDate      = appt.EndDate,
-            BasePrice    = appt.BasePrice,
-            TotalPrice   = appt.GetTotalPrice(),
-            MeetingLink  = appt.MeetingLink,
-            ArriveTime   = appt.ArriveTime,
+            Id = appt.Id,
+            Status = appt.Status,
+            Type = appt.Type,
+            Mode = appt.Mode,
+            StartDate = appt.StartDate,
+            EndDate = appt.EndDate,
+            BasePrice = appt.BasePrice,
+            TotalPrice = appt.GetTotalPrice(),
+            MeetingLink = appt.MeetingLink,
+            ArriveTime = appt.ArriveTime,
             CabinetNumber = appt.Cabinet?.Number,
-            HomeAddress  = appt.HomeAddress == null ? null : new AddressResponseDto(
+            HomeAddress = appt.HomeAddress == null ? null : new AddressResponseDto(
                 appt.HomeAddress.Country,
                 appt.HomeAddress.City,
                 appt.HomeAddress.Street,
