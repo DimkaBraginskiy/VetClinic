@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using VetClinic.Application.Service;
+using VetClinic.Application.Services;
 using VetClinic.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,7 +9,9 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddScoped<AppointmentsService>();
+builder.Services.AddScoped<IAppointmentService, AppointmentsService>();
+builder.Services.AddScoped<ICustomersService, CustomersService>();
+
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
