@@ -14,22 +14,22 @@ public class Veterinarian : Person
     internal void ClearClinic() { ClinicId = Guid.Empty; Clinic = null!; ClinicVetId = null!; }
     
     private readonly List<Shift> _shifts = new();
-    private readonly List<TreatmentType> _availableTreatmentTypes = new();
+    private readonly List<TreatmentOffering> _treatmentOfferings = new();
     private readonly List<Treatment> _treatments = new();
     private readonly List<Appointment> _appointments = new();
-    public IReadOnlyCollection<TreatmentType> AvailableTreatmentTypes => _availableTreatmentTypes.AsReadOnly();
+    public IReadOnlyCollection<TreatmentOffering> TreatmentOfferings => _treatmentOfferings.AsReadOnly();
     public IReadOnlyCollection<Shift> Shifts => _shifts.AsReadOnly();
     public IReadOnlyCollection<Treatment> Treatments => _treatments.AsReadOnly();
-    public IReadOnlyCollection<Appointment> Appointments => 
+    public IReadOnlyCollection<Appointment> Appointments =>
         _appointments.OrderBy(a => a.StartDate).ToList().AsReadOnly();
-    
+
     protected Veterinarian() { }
 
     public Veterinarian(
         VeterinarianType type,
         decimal salary,
         DateTime employmentDate,
-        List<TreatmentType> availableTreatmentTypes,
+        List<(TreatmentType Type, decimal Price, decimal BaseDuration)> offerings,
         Clinic clinic,
         string firstName, string lastName, string email,
         string? middleName = null) : base(firstName, lastName, email, middleName)
@@ -40,7 +40,7 @@ public class Veterinarian : Person
             throw new ArgumentException("Salary must be positive.");
         if (employmentDate > DateTime.Now)
             throw new ArgumentException("Employment date cannot be in the future.");
-        if (availableTreatmentTypes.Count == 0)
+        if (offerings.Count == 0)
             throw new ArgumentException("Veterinarian must offer at least one treatment.");
         ArgumentNullException.ThrowIfNull(clinic);
 
@@ -51,57 +51,38 @@ public class Veterinarian : Person
         Clinic = clinic;
         clinic.AddVeterinarian(this);
 
-        foreach (var t in availableTreatmentTypes)
-            AddAvailableTreatment(t);
+        foreach (var (t, price, duration) in offerings)
+            AddOffering(t, price, duration);
     }
 
-    public void AddAvailableTreatment(TreatmentType type)
+    public void AddOffering(TreatmentType type, decimal price, decimal baseDuration)
     {
-        if (type is TreatmentType.Surgery or TreatmentType.Chiropractic
-            && Type != VeterinarianType.Surgeon)
-            throw new InvalidOperationException("Only a Surgeon can perform Surgery or Chiropractic.");
+        if (_treatmentOfferings.Any(o => o.Type == type))
+            throw new InvalidOperationException($"{type} is already in offerings.");
 
-        if (_availableTreatmentTypes.Contains(type))
-            throw new InvalidOperationException($"{type} already in offerings.");
-
-        _availableTreatmentTypes.Add(type);
-    }
-    
-    public void RemoveAvailableTreatment(TreatmentType type)
-    {
-        if (_availableTreatmentTypes.Count == 1)
-            throw new InvalidOperationException("Veterinarian must offer at least one treatment.");
-        if (!_availableTreatmentTypes.Remove(type))
-            throw new ArgumentException($"{type} not found in offerings.");
+        _treatmentOfferings.Add(new TreatmentOffering(type, price, baseDuration, this));
     }
 
-    public bool CanPerform(TreatmentType type) => _availableTreatmentTypes.Contains(type);
-
-    public void AddTreatment(Treatment treatment)
+    public void RemoveOffering(TreatmentType type)
     {
-        if (treatment.Type is TreatmentType.Surgery or TreatmentType.Chiropractic && Type != VeterinarianType.Surgeon){
-            throw new InvalidOperationException("Only a surgeon can perform a surgery");
-        }
-        if(Treatments.Any(t => t.Type == treatment.Type))
-        {
-            throw new InvalidOperationException($"Treatment {treatment} already assigned");
-        }
+        if (_treatmentOfferings.Count == 1)
+            throw new InvalidOperationException("Veterinarian must have at least one offering.");
 
+        var offering = _treatmentOfferings.FirstOrDefault(o => o.Type == type)
+            ?? throw new ArgumentException($"{type} not found in offerings.");
+
+        _treatmentOfferings.Remove(offering);
+    }
+
+    public TreatmentOffering? GetOffering(TreatmentType type) =>
+        _treatmentOfferings.FirstOrDefault(o => o.Type == type);
+
+    public bool CanPerform(TreatmentType type) =>
+        _treatmentOfferings.Any(o => o.Type == type);
+
+    internal void AddTreatment(Treatment treatment)
+    {
         _treatments.Add(treatment);
-    }
-
-    public void RemoveTreatment(TreatmentType treatmentType)
-    {
-        if (Treatments.Count == 1)
-            throw new InvalidOperationException("Veterinarian must have at least one treatment.");
-        
-        var treatment = Treatments.FirstOrDefault(t => t.Type.Equals(treatmentType));
-        if (treatment == null)
-        {
-            throw new ArgumentException("Treatment with the given type does not exist");
-        }
-
-        _treatments.Remove(treatment);
     }
 
     public bool IsAvailable(DateTime start, DateTime end)

@@ -16,18 +16,17 @@ public class Treatment
 
     protected Treatment() { }
 
-    public Treatment(TreatmentType type, decimal duration, decimal price, Veterinarian veterinarian)
+    public Treatment(TreatmentType type, Veterinarian veterinarian)
     {
-        if (duration <= 0) throw new ArgumentException("Duration must be positive.");
-        if (price < 0)     throw new ArgumentException("Price cannot be negative.");
         ArgumentNullException.ThrowIfNull(veterinarian);
 
-        if (!veterinarian.CanPerform(type))  // ← validates against capability list
-            throw new InvalidOperationException($"Veterinarian cannot perform {type}.");
+        var offering = veterinarian.GetOffering(type)
+            ?? throw new InvalidOperationException(
+                $"Veterinarian does not offer {type}.");
 
         Type = type;
-        Duration = duration;
-        Price = price;
+        Duration = offering.BaseDuration;
+        Price = offering.Price;
         VeterinarianId = veterinarian.Id;
         Veterinarian = veterinarian;
 

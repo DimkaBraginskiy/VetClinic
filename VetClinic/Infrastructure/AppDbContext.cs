@@ -1,8 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using VetClinic.Domain.Entities;
-using VetClinic.Domain.Enums;
 
 namespace VetClinic.Infrastructure;
 
@@ -14,7 +11,8 @@ public class AppDbContext : DbContext
     public DbSet<Veterinarian> Veterinarians => Set<Veterinarian>();
     public DbSet<Animal>       Animals       => Set<Animal>();
     public DbSet<Appointment>  Appointments  => Set<Appointment>();
-    public DbSet<Treatment>    Treatments    => Set<Treatment>();
+    public DbSet<Treatment>         Treatments         => Set<Treatment>();
+    public DbSet<TreatmentOffering> TreatmentOfferings => Set<TreatmentOffering>();
     public DbSet<Clinic>       Clinics       => Set<Clinic>();
     public DbSet<Cabinet>      Cabinets      => Set<Cabinet>();
     public DbSet<Shift>        Shifts        => Set<Shift>();
@@ -38,22 +36,11 @@ public class AppDbContext : DbContext
             .HasForeignKey(a => a.CustomerId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        var treatmentTypeConverter = new ValueConverter<List<TreatmentType>, string>(
-            v => string.Join(',', v.Select(t => t.ToString())),
-            v => v.Split(',', StringSplitOptions.RemoveEmptyEntries)
-                  .Select(Enum.Parse<TreatmentType>)
-                  .ToList()
-        );
-        var treatmentTypeComparer = new ValueComparer<List<TreatmentType>>(
-            (a, b) => a!.SequenceEqual(b!),
-            v => v.Aggregate(0, (h, t) => HashCode.Combine(h, t.GetHashCode())),
-            v => v.ToList()
-        );
-
         model.Entity<Veterinarian>()
-            .Property<List<TreatmentType>>("_availableTreatmentTypes")
-            .HasColumnName("AvailableTreatmentTypes")
-            .HasConversion(treatmentTypeConverter, treatmentTypeComparer);
+            .HasMany(v => v.TreatmentOfferings)
+            .WithOne(o => o.Veterinarian)
+            .HasForeignKey(o => o.VeterinarianId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         model.Entity<Veterinarian>()
             .HasMany(v => v.Shifts)
