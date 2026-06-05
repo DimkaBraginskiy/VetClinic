@@ -26,13 +26,10 @@ public class Discount
     {
         if (!_appointments.Any(a => a.Id == appointment.Id))
             _appointments.Add(appointment);
-            appointment.ApplyDiscount(this);
     }
-    
+
     internal void RemoveAppointment(Appointment appointment)
     {
-        if (_appointments.Any(a => a.Id == appointment.Id))
-            _appointments.Remove(appointment);
-            appointment.DiscardDiscount(Id);
+        _appointments.Remove(appointment);
     }
 }

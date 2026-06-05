@@ -8,6 +8,10 @@ public class Veterinarian : Person
 
     public Guid ClinicId { get; private set; }
     public Clinic Clinic { get; private set; } = null!;
+    public string ClinicVetId { get; private set; } = null!;
+
+    internal void SetClinicVetId(string clinicVetId) => ClinicVetId = clinicVetId;
+    internal void ClearClinic() { ClinicId = Guid.Empty; Clinic = null!; ClinicVetId = null!; }
     
     private readonly List<Shift> _shifts = new();
     private readonly List<TreatmentType> _availableTreatmentTypes = new();

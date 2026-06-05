@@ -61,6 +61,7 @@ public class Appointment
         Customer = customer;
         VeterinarianId = veterinarian.Id;
         Veterinarian = veterinarian;
+        veterinarian.AddAppointment(this);
         AddAnimal(animal);
 
         if (treatment != null)
@@ -203,8 +204,6 @@ public class Appointment
             _ => false
         };
 
-    // --- Collections ---
-
     public void AddAnimal(Animal animal)
     {
         ArgumentNullException.ThrowIfNull(animal);
@@ -268,6 +267,8 @@ public class Appointment
     
     public string ToString()
     {
-        return $"{GetTitle()} on {StartDate:yyyy-MM-dd HH:mm} with Dr. {Veterinarian.GetFullName()} ({Mode}) - Status: {Status}";
+        var treatmentPart = Treatment != null ? $"Treatment: {Treatment.Type}, " : "";
+        var discountPart = Discounts.Any() ? $"Discounts: {string.Join(", ", Discounts.Select(d => d.PromoCode))}, " : "";
+        return $"{GetTitle()} | Mode: {Mode}, Status: {Status}, Start: {StartDate}, End: {EndDate}, Price: {GetTotalPrice():C}, {treatmentPart}{discountPart}Veterinarian: {Veterinarian.FirstName} {Veterinarian.LastName}";
     }
 }
