@@ -15,23 +15,21 @@ public class Clinic
     
     protected Clinic() { }
 
-    public Clinic(Address address, List<Cabinet> cabinets, List<Veterinarian> veterinarians)
+    public Clinic(Address address, int initialFloor, int initialNumber)
     {
-        Validate(address, cabinets, veterinarians);
+        ArgumentNullException.ThrowIfNull(address);
         Address = address;
+        AddCabinet(initialFloor, initialNumber);
+    }
 
-        foreach (var cabinet in cabinets)
-        {
-            AddCabinet(cabinet.Floor, cabinet.Number);
-        }
-
-        foreach (var veterinarian in veterinarians)
-        {
-            AddVeterinarian(veterinarian);
-        }
+    public Cabinet AddCabinet(int floor, int number)
+    {
+        var cabinet = new Cabinet(floor, number, this);
+        _cabinets.Add(cabinet);
+        return cabinet;
     }
     
-    private void Validate(Address address, List<Cabinet> cabinets, List<Veterinarian> veterinarians)
+    private void Validate(Address address, List<Cabinet> cabinets)
     {
         if (address == null)
         {
@@ -41,11 +39,6 @@ public class Clinic
         if (cabinets.Count == 0)
         {
             throw new ArgumentException("Clinic must have at least one cabinet");
-        }
-
-        if (veterinarians.Count == 0)
-        {
-            throw new ArgumentException("Clinic must have at least one veterinarian");
         }
     }
     
@@ -58,18 +51,11 @@ public class Clinic
 
         var clinicVetId = $"VET-{Id.ToString()[..8].ToUpper()}-{_veterinarians.Count + 1:D3}";
         _veterinarians.Add(clinicVetId, veterinarian);
-        return clinicVetId; // caller gets the clinic-assigned id back
+        return clinicVetId;
     }
 
     public Veterinarian? GetVeterinarianByClinicVetId(string clinicVetId)
         => _veterinarians.TryGetValue(clinicVetId, out var vet) ? vet : null;
-    
-    public Cabinet AddCabinet(int floor, int number)
-    {
-        var cabinet = new Cabinet(floor, number, this);
-        _cabinets.Add(cabinet);
-        return cabinet;
-    }
     
     public void RemoveCabinet(Guid cabinetId)
     {

@@ -58,5 +58,8 @@ public class Shift
     {
         Veterinarian.RemoveShift(this);
         Clinic.RemoveShift(this);
+
+        Veterinarian = null!;
+        Clinic = null!;
     }
 }

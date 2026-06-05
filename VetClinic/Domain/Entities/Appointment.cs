@@ -40,13 +40,13 @@ public class Appointment
     protected Appointment() { }
 
     private Appointment(AppointmentType type, AppointmentMode mode, DateTime startDate,
-        decimal basePrice, Guid customerId, Guid veterinarianId, Treatment? treatment)
+        decimal basePrice, Customer customer, Veterinarian veterinarian, Treatment? treatment, Animal animal)
     {
         if (startDate < DateTime.Now)
             throw new ArgumentException("Start date cannot be in the past.");
         if (basePrice < 0)
             throw new ArgumentException("Base price cannot be negative.");
-        if (customerId == Guid.Empty || veterinarianId == Guid.Empty)
+        if (customer.Id == Guid.Empty || veterinarian.Id == Guid.Empty)
             throw new ArgumentException("Customer and Veterinarian are required.");
         if (type == AppointmentType.Treatment && treatment == null)
             throw new InvalidOperationException("Treatment appointment must have a Treatment.");
@@ -57,8 +57,11 @@ public class Appointment
         Mode = mode;
         StartDate = startDate;
         BasePrice = basePrice;
-        CustomerId = customerId;
-        VeterinarianId = veterinarianId;
+        CustomerId = customer.Id;
+        Customer = customer;
+        VeterinarianId = veterinarian.Id;
+        Veterinarian = veterinarian;
+        AddAnimal(animal);
 
         if (treatment != null)
         {
@@ -68,31 +71,35 @@ public class Appointment
     }
     
     public static Appointment CreateOnline(AppointmentType type, DateTime startDate,
-        decimal basePrice, Guid customerId, Guid veterinarianId, string? meetingLink = null)
+        decimal basePrice, Customer customer, Veterinarian veterinarian, Animal animal, string? meetingLink = null)
     {
         if (type == AppointmentType.Treatment)
             throw new ArgumentException("Online appointments can only be Consultations.");
 
         var appt = new Appointment(type, AppointmentMode.Online, startDate,
-            basePrice, customerId, veterinarianId, treatment: null);
+            basePrice, customer, veterinarian, treatment: null, animal);
         appt.MeetingLink = meetingLink ?? $"https://meet.vetclinic.com/{Guid.NewGuid()}";
         return appt;
     }
 
     public static Appointment CreateHome(AppointmentType type, DateTime startDate,
-        decimal basePrice, Guid customerId, Guid veterinarianId,
+        decimal basePrice, Customer customer, Veterinarian veterinarian, Animal animal,
         Address address, Treatment? treatment = null)
     {
         ArgumentNullException.ThrowIfNull(address);
+        
+        if (treatment != null && !IsAllowedAtHome(treatment.Type))
+            throw new InvalidOperationException(
+                $"{treatment.Type} cannot be performed at home. Only Checkup and Chiropractic are allowed.");
 
         var appt = new Appointment(type, AppointmentMode.Home, startDate,
-            basePrice, customerId, veterinarianId, treatment);
+            basePrice, customer, veterinarian, treatment, animal);
         appt.HomeAddress = address;
         return appt;
     }
 
     public static Appointment CreateClinic(AppointmentType type, DateTime startDate,
-        decimal basePrice, Guid customerId, Guid veterinarianId,
+        decimal basePrice, Customer customer, Veterinarian veterinarian, Animal animal,
         DateTime arriveTime, Cabinet cabinet, Treatment? treatment = null)
     {
         ArgumentNullException.ThrowIfNull(cabinet);
@@ -100,7 +107,7 @@ public class Appointment
             throw new ArgumentException("Arrival time must be before start time.");
 
         var appt = new Appointment(type, AppointmentMode.Clinic, startDate,
-            basePrice, customerId, veterinarianId, treatment);
+            basePrice, customer, veterinarian, treatment, animal);
         appt.ArriveTime = arriveTime;
         appt.CabinetId = cabinet.Id;
         appt.Cabinet = cabinet;
@@ -132,6 +139,9 @@ public class Appointment
         if (Status != AppointmentStatus.Scheduled)
             throw new InvalidOperationException("Mode can only be changed while Scheduled.");
         ArgumentNullException.ThrowIfNull(address);
+        if (Treatment != null && !IsAllowedAtHome(Treatment.Type))
+            throw new InvalidOperationException(
+                $"{Treatment.Type} cannot be performed at home. Only Checkup and Chiropractic are allowed.");
 
         MeetingLink = null;
         ArriveTime = null;
@@ -223,6 +233,14 @@ public class Appointment
         _discounts.Add(discount);
         discount.AddAppointment(this);
     }
+    
+    public void DiscardDiscount(Guid discountId)
+    {
+        var discount = _discounts.FirstOrDefault(d => d.Id == discountId)
+            ?? throw new ArgumentException("Discount not found.");
+        _discounts.Remove(discount);
+        discount.RemoveAppointment(this);
+    }
 
     public decimal GetTotalPrice()
     {
@@ -242,6 +260,14 @@ public class Appointment
             : $"{Treatment.Type} for {animalPart}";
     }
 
+    private static bool IsAllowedAtHome(TreatmentType type) =>
+        type is TreatmentType.Checkup or TreatmentType.Chiropractic;
+
     public int GetTotalDuration() =>
         Treatment != null ? (int)Treatment.Duration : 30;
+    
+    public string ToString()
+    {
+        return $"{GetTitle()} on {StartDate:yyyy-MM-dd HH:mm} with Dr. {Veterinarian.GetFullName()} ({Mode}) - Status: {Status}";
+    }
 }

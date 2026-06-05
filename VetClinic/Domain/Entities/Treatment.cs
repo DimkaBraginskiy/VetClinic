@@ -22,11 +22,22 @@ public class Treatment
         if (price < 0)     throw new ArgumentException("Price cannot be negative.");
         ArgumentNullException.ThrowIfNull(veterinarian);
 
+        if (!veterinarian.CanPerform(type))  // ← validates against capability list
+            throw new InvalidOperationException($"Veterinarian cannot perform {type}.");
+
         Type = type;
         Duration = duration;
         Price = price;
         VeterinarianId = veterinarian.Id;
         Veterinarian = veterinarian;
+
+        veterinarian.AddTreatment(this);
+    }
+    
+    internal void AssignToVeterinarian(Veterinarian vet)
+    {
+        VeterinarianId = vet.Id;
+        Veterinarian = vet;
     }
     
     public void TransitionTo(TreatmentStatus next)

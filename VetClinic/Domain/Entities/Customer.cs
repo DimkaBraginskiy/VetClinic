@@ -12,7 +12,7 @@ public class Customer : Person
     public Customer() {}
 
     public Customer(string firstName, string lastName, string email, decimal loyaltyPoints, string? middleName = null) 
-        : base(firstName, lastName, middleName, email)
+        : base(firstName, lastName, email, middleName)
     {
         Validate(loyaltyPoints);
         LoyaltyPoints = loyaltyPoints;

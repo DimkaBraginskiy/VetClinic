@@ -10,8 +10,10 @@ public class Veterinarian : Person
     public Clinic Clinic { get; private set; } = null!;
     
     private readonly List<Shift> _shifts = new();
+    private readonly List<TreatmentType> _availableTreatmentTypes = new();
     private readonly List<Treatment> _treatments = new();
     private readonly List<Appointment> _appointments = new();
+    public IReadOnlyCollection<TreatmentType> AvailableTreatmentTypes => _availableTreatmentTypes.AsReadOnly();
     public IReadOnlyCollection<Shift> Shifts => _shifts.AsReadOnly();
     public IReadOnlyCollection<Treatment> Treatments => _treatments.AsReadOnly();
     public IReadOnlyCollection<Appointment> Appointments => 
@@ -22,54 +24,54 @@ public class Veterinarian : Person
     public Veterinarian(
         VeterinarianType type,
         decimal salary,
-        DateTime employmentDate, 
-        List<Treatment> treatments,
+        DateTime employmentDate,
+        List<TreatmentType> availableTreatmentTypes,
         Clinic clinic,
-        string firstName,
-        string lastName,
-        string email,
+        string firstName, string lastName, string email,
         string? middleName = null) : base(firstName, lastName, email, middleName)
     {
-        Validate(type, salary, employmentDate, treatments, clinic);
+        if (!Enum.IsDefined(type))
+            throw new ArgumentException("Invalid veterinarian type.");
+        if (salary <= 0)
+            throw new ArgumentException("Salary must be positive.");
+        if (employmentDate > DateTime.Now)
+            throw new ArgumentException("Employment date cannot be in the future.");
+        if (availableTreatmentTypes.Count == 0)
+            throw new ArgumentException("Veterinarian must offer at least one treatment.");
+        ArgumentNullException.ThrowIfNull(clinic);
+
         Type = type;
         Salary = salary;
         EmploymentDate = employmentDate;
         ClinicId = clinic.Id;
         Clinic = clinic;
+        clinic.AddVeterinarian(this);
 
-        foreach (var treatment in treatments)
-        {
-            AddTreatment(treatment);
-        }
+        foreach (var t in availableTreatmentTypes)
+            AddAvailableTreatment(t);
     }
 
-    private void Validate(VeterinarianType type, decimal salary, DateTime employmentDate, List<Treatment> treatments, Clinic clinic)
+    public void AddAvailableTreatment(TreatmentType type)
     {
-        if (!Enum.IsDefined(type))
-        {
-            throw new ArgumentException("Invalid veterinarian type");
-        }
+        if (type is TreatmentType.Surgery or TreatmentType.Chiropractic
+            && Type != VeterinarianType.Surgeon)
+            throw new InvalidOperationException("Only a Surgeon can perform Surgery or Chiropractic.");
 
-        if (salary <= 0)
-        {
-            throw new ArgumentException("Salary can not be smaller or equal 0");
-        }
+        if (_availableTreatmentTypes.Contains(type))
+            throw new InvalidOperationException($"{type} already in offerings.");
 
-        if (employmentDate > DateTime.Now)
-        {
-            throw new ArgumentException("Employment date can not be in the future");
-        }
-
-        if (treatments.Count == 0)
-        {
-            throw new ArgumentException("A Veterinarian can not have 0 treatments");
-        }
-        
-        if(clinic == null)
-        {
-            throw new ArgumentException("Clinic can not be null");
-        }
+        _availableTreatmentTypes.Add(type);
     }
+    
+    public void RemoveAvailableTreatment(TreatmentType type)
+    {
+        if (_availableTreatmentTypes.Count == 1)
+            throw new InvalidOperationException("Veterinarian must offer at least one treatment.");
+        if (!_availableTreatmentTypes.Remove(type))
+            throw new ArgumentException($"{type} not found in offerings.");
+    }
+
+    public bool CanPerform(TreatmentType type) => _availableTreatmentTypes.Contains(type);
 
     public void AddTreatment(Treatment treatment)
     {
