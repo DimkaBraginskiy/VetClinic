@@ -1,15 +1,27 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import styles from './LoginPage.module.css'
+import { login } from '../api/auth'
 
 export default function LoginPage() {
-    const [email, setEmail] = useState('')
+    const [email, setEmail]       = useState('')
     const [password, setPassword] = useState('')
-    const navigate = useNavigate()
+    const [error, setError]       = useState('')
+    const [loading, setLoading]   = useState(false)
+    const navigate                = useNavigate()
 
     const handleLogin = async (e: React.SyntheticEvent) => {
         e.preventDefault()
-        navigate('/home')
+        setError('')
+        setLoading(true)
+        try {
+            await login(email, password)
+            navigate('/home')
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : 'Something went wrong.')
+        } finally {
+            setLoading(false)
+        }
     }
 
     return (
@@ -35,8 +47,9 @@ export default function LoginPage() {
                         onChange={e => setPassword(e.target.value)}
                         required
                     />
-                    <button className={styles.button} type="submit">
-                        Sign in
+                    {error && <p className={styles.error}>{error}</p>}
+                    <button className={styles.button} type="submit" disabled={loading}>
+                        {loading ? 'Signing in…' : 'Sign in'}
                     </button>
                 </form>
             </div>

@@ -1,0 +1,244 @@
+/* ── Outer wrapper: full height, content centred ─────── */
+
+.page {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem 6rem; /* bottom pad for fixed nav */
+    min-height: calc(100vh - 120px);
+}
+
+/* ── Step header ─────────────────────────────────────── */
+
+.stepHeader {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.stepLabel {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text);
+}
+
+.heading {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-h);
+    margin: 0.3rem 0 0;
+}
+
+/* ── Generic card grid ───────────────────────────────── */
+
+.cardGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    width: 100%;
+    max-width: 860px;
+}
+
+/* ── Big square type cards (step 1 & 2) ─────────────── */
+
+.bigCard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.875rem;
+    padding: 2.5rem 1.5rem;
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 2px solid var(--border);
+    border-radius: 18px;
+    cursor: pointer;
+    transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+}
+
+.bigCard:hover              { border-color: var(--accent-border); box-shadow: var(--shadow); }
+.bigCard.selected           { border-color: var(--accent); background: var(--accent-bg); }
+
+.bigCardImage {
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 5rem;
+}
+
+.bigCardLabel { font-size: 1rem; font-weight: 600; color: var(--text-h); }
+.bigCardDesc  { font-size: 0.78rem; color: var(--text); text-align: center; line-height: 1.4; }
+
+/* ── Smaller option cards (mode, treatment type, clinics) */
+
+.optionCard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 2rem 1rem;
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+}
+
+.optionCard:hover    { border-color: var(--accent-border); }
+.optionCard.selected { border-color: var(--accent); background: var(--accent-bg); }
+
+.optionIcon  { font-size: 3rem; }
+.optionLabel { font-size: 0.88rem; font-weight: 600; color: var(--text-h); }
+.optionSub   { font-size: 0.75rem; color: var(--text); text-align: center; }
+
+/* ── Animal cards ────────────────────────────────────── */
+
+.animalCard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 2rem 1rem;
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+}
+
+.animalCard:hover    { border-color: var(--accent-border); }
+.animalCard.selected { border-color: var(--accent); background: var(--accent-bg); }
+
+.animalAvatar { font-size: 3.5rem; }
+.animalName   { font-size: 0.95rem; font-weight: 600; color: var(--text-h); }
+.animalMeta   { font-size: 0.75rem; color: var(--text); }
+
+/* ── Day grid ────────────────────────────────────────── */
+
+.dayGrid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.625rem;
+}
+
+.dayCard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.75rem 0.5rem;
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    min-width: 56px;
+}
+
+.dayCard:hover    { border-color: var(--accent-border); }
+.dayCard.selected { border-color: var(--accent); background: var(--accent-bg); }
+
+.dayName { font-size: 0.7rem; font-weight: 600; color: var(--text); text-transform: uppercase; }
+.dayNum  { font-size: 1.2rem; font-weight: 700; color: var(--text-h); }
+.dayMon  { font-size: 0.7rem; color: var(--text); }
+
+/* ── Address form ────────────────────────────────────── */
+
+.addressForm {
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+    width: 100%;
+    max-width: 420px;
+}
+
+.formRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.875rem;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.fieldLabel {
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--text);
+}
+
+.input {
+    padding: 0.6rem 0.875rem;
+    background: rgba(255,255,255,0.8);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-family: inherit;
+    color: var(--text-h);
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.input:focus {
+    border-color: var(--accent-border);
+    box-shadow: 0 0 0 3px var(--accent-bg);
+}
+
+/* ── Fixed navigation ────────────────────────────────── */
+
+.backBtn {
+    position: fixed;
+    bottom: 2rem;
+    left: calc(48px + 1.5rem); /* sidebar width + gap */
+    padding: 0.7rem 1.4rem;
+    background: rgba(255,255,255,0.7);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-h);
+    cursor: pointer;
+    backdrop-filter: var(--glass-blur);
+    transition: background 0.15s;
+    z-index: 200; /* above sidebar slot (z-index: 100) */
+}
+
+.backBtn:hover { background: rgba(255,255,255,0.95); }
+
+.nextBtn {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    padding: 0.7rem 1.6rem;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(124, 58, 237, 0.3);
+    transition: opacity 0.15s;
+    z-index: 200;
+}
+
+.nextBtn:hover    { opacity: 0.88; }
+.nextBtn:disabled { opacity: 0.35; cursor: not-allowed; box-shadow: none; }
+
+.empty { color: var(--text); font-size: 0.9rem; }

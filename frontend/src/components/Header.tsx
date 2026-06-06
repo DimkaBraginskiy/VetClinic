@@ -1,12 +1,18 @@
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 export default function Header() {
     const { pathname } = useLocation()
-    const showUser = pathname !== '/'
+    const navigate     = useNavigate()
+    const showUser     = pathname !== '/'
 
     return (
         <header>
-            <h1>Ilan's Vet Clinic</h1>
+            <h1
+                onClick={() => showUser && navigate('/home')}
+                style={{ cursor: showUser ? 'pointer' : 'default' }}
+            >
+                Ilan's Vet Clinic
+            </h1>
             {showUser && (
                 <button className="header-user-btn" title="Account">
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"

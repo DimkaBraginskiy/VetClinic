@@ -1,7 +1,10 @@
+import { useNavigate } from 'react-router-dom'
 import AppLayout from '../components/AppLayout'
 import styles from './AppointmentsPage.module.css'
 
 export default function AppointmentsPage() {
+    const navigate = useNavigate()
+
     return (
         <AppLayout>
             <div className={styles.panel}>
@@ -14,7 +17,9 @@ export default function AppointmentsPage() {
                 </div>
             </div>
 
-            <button className={styles.fab}>+ Schedule appointment</button>
+            <button className={styles.fab} onClick={() => navigate('/appointments/schedule')}>
+                + Schedule appointment
+            </button>
         </AppLayout>
     )
 }
