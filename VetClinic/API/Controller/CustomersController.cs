@@ -1,8 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
+using VetClinic.Application.DTOs.Request;
 using VetClinic.Application.Services;
 
 namespace VetClinic.API.Controller;
 
+[ApiController]
+[Route("api/[controller]")]
 public class CustomersController : ControllerBase
 {
     private readonly ICustomersService _customersService;
@@ -10,6 +13,17 @@ public class CustomersController : ControllerBase
     public CustomersController(ICustomersService customersService)
     {
         _customersService = customersService;
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> CreateCustomer([FromBody] CreateCustomerRequestDto dto)
+    {
+        try
+        {
+            var id = await _customersService.CreateCustomerAsync(dto);
+            return CreatedAtAction(nameof(CreateCustomer), new { id }, new { id });
+        }
+        catch (ArgumentException ex)         { return BadRequest(ex.Message); }
     }
 
     [HttpGet("{customerId}/animals")]
@@ -21,5 +35,28 @@ public class CustomersController : ControllerBase
             return Ok(result);
         }
         catch (KeyNotFoundException ex) { return NotFound(ex.Message); }
+    }
+
+    [HttpDelete("{customerId}/animals/{animalId}")]
+    public async Task<IActionResult> DeleteCustomerAnimal(Guid customerId, Guid animalId)
+    {
+        try
+        {
+            await _customersService.DeleteCustomerAnimalAsync(customerId, animalId);
+            return NoContent();
+        }
+        catch (KeyNotFoundException ex) { return NotFound(ex.Message); }
+    }
+
+    [HttpPost("{customerId}/animals")]
+    public async Task<IActionResult> CreateCustomerAnimal([FromBody] CreatAnimalRequestDto dto, Guid customerId)
+    {
+        try
+        {
+            var id = await _customersService.CreateCustomerAnimalAsync(dto, customerId);
+            return CreatedAtAction(nameof(GetCustomerAnimals), new { customerId }, new { id });
+        }
+        catch (KeyNotFoundException ex) { return NotFound(ex.Message); }
+        catch (ArgumentException ex)    { return BadRequest(ex.Message); }
     }
 }

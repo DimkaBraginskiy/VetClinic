@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using VetClinic.Infrastructure;
 
@@ -10,9 +11,11 @@ using VetClinic.Infrastructure;
 namespace VetClinic.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260606171047_EnumCHanges")]
+    partial class EnumCHanges
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.16");
@@ -100,9 +103,8 @@ namespace VetClinic.Migrations
                     b.Property<string>("MeetingLink")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Mode")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
+                    b.Property<int>("Mode")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("PaymentDetails")
                         .HasColumnType("TEXT");
@@ -117,9 +119,8 @@ namespace VetClinic.Migrations
                     b.Property<Guid?>("TreatmentId")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
+                    b.Property<int>("Type")
+                        .HasColumnType("INTEGER");
 
                     b.Property<Guid>("VeterinarianId")
                         .HasColumnType("TEXT");
@@ -256,9 +257,8 @@ namespace VetClinic.Migrations
                     b.Property<decimal>("Price")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
+                    b.Property<int>("Status")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Type")
                         .IsRequired()
@@ -330,9 +330,8 @@ namespace VetClinic.Migrations
                     b.Property<decimal>("Salary")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
+                    b.Property<int>("Type")
+                        .HasColumnType("INTEGER");
 
                     b.HasIndex("ClinicId");
 

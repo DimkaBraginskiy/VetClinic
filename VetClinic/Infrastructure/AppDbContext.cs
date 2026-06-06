@@ -20,9 +20,42 @@ public class AppDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder model)
     {
+           
         model.Entity<Person>().ToTable("People");
         model.Entity<Customer>().ToTable("Customers");
         model.Entity<Veterinarian>().ToTable("Veterinarians");
+
+        model.Entity<Animal>()
+            .Property(a => a.Species)
+            .HasConversion<string>();
+
+        model.Entity<Veterinarian>()
+            .Property(v => v.Type)
+            .HasConversion<string>();
+
+        model.Entity<Treatment>()
+            .Property(t => t.Type)
+            .HasConversion<string>();
+
+        model.Entity<Treatment>()
+            .Property(t => t.Status)
+            .HasConversion<string>();
+
+        model.Entity<TreatmentOffering>()
+            .Property(o => o.Type)
+            .HasConversion<string>();
+
+        model.Entity<Appointment>()
+            .Property(a => a.Status)
+            .HasConversion<string>();
+
+        model.Entity<Appointment>()
+            .Property(a => a.Type)
+            .HasConversion<string>();
+
+        model.Entity<Appointment>()
+            .Property(a => a.Mode)
+            .HasConversion<string>();
 
         model.Entity<Customer>()
             .HasMany(c => c.Animals)
