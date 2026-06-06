@@ -19,6 +19,7 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<IAppointmentService, AppointmentsService>();
 builder.Services.AddScoped<ICustomersService, CustomersService>();
+builder.Services.AddScoped<IClinicService, ClinicsService>();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));

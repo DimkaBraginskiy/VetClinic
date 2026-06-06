@@ -3,6 +3,7 @@
 public class Clinic
 {
     public Guid Id { get; private set; } = Guid.NewGuid();
+    public string Name { get; private set; }
 
     public Address Address { get; private set; } = null!;
 
@@ -18,9 +19,11 @@ public class Clinic
     
     protected Clinic() { }
 
-    public Clinic(Address address, int initialFloor, int initialNumber)
+    public Clinic(string name, Address address, int initialFloor, int initialNumber)
     {
+        ArgumentNullException.ThrowIfNull(name);
         ArgumentNullException.ThrowIfNull(address);
+        Name = name;
         Address = address;
         AddCabinet(initialFloor, initialNumber);
     }
