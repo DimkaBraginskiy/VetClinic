@@ -39,6 +39,9 @@ public class CustomersService : ICustomersService
         return customer?.Id;
     }
 
+    public async Task<int> GetAppointmentCountAsync(Guid customerId) =>
+        await _context.Appointments.CountAsync(a => a.CustomerId == customerId);
+
     public async Task DeleteCustomerAnimalAsync(Guid customerId, Guid animalId)
     {
         var animal = await _context.Animals

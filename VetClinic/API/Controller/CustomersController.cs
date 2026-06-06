@@ -26,6 +26,17 @@ public class CustomersController : ControllerBase
         catch (ArgumentException ex)         { return BadRequest(ex.Message); }
     }
 
+    [HttpGet("{customerId}/appointments/count")]
+    public async Task<IActionResult> GetAppointmentCount(Guid customerId)
+    {
+        try
+        {
+            var count = await _customersService.GetAppointmentCountAsync(customerId);
+            return Ok(new { count });
+        }
+        catch (KeyNotFoundException ex) { return NotFound(ex.Message); }
+    }
+
     [HttpGet("{customerId}/animals")]
     public async Task<IActionResult> GetCustomerAnimals(Guid customerId)
     {
