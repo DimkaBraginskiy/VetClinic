@@ -1,0 +1,32 @@
+.cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1rem;
+}
+
+.card {
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.cardLabel { font-size: 0.82rem; color: var(--text); }
+.cardValue  { font-size: 1.8rem; font-weight: 600; color: var(--text-h); }
+
+.section {
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.5rem;
+}
+
+.section h3 { margin: 0 0 1rem; font-size: 1rem; }
+.empty      { color: var(--text); font-size: 0.9rem; }

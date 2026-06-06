@@ -1,0 +1,56 @@
+.panel {
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.75rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.panelHeader {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.panelHeader h2 { margin: 0; font-size: 1.2rem; }
+
+/* empty state fills remaining space and centers */
+.emptyState {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    color: var(--text);
+}
+
+.emptyIcon  { font-size: 2.5rem; }
+.emptyText  { font-size: 1rem; }
+
+/* fixed FAB bottom-right */
+.fab {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    padding: 0.9rem 1.6rem;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 14px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(124, 58, 237, 0.35);
+    transition: opacity 0.15s, transform 0.15s;
+    z-index: 50;
+}
+
+.fab:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+}

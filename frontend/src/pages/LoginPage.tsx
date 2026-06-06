@@ -9,7 +9,7 @@ export default function LoginPage() {
 
     const handleLogin = async (e: React.SyntheticEvent) => {
         e.preventDefault()
-        navigate('/animals')
+        navigate('/home')
     }
 
     return (

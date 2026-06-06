@@ -13,7 +13,7 @@ export default function Layout({ children }: ContainerProps) {
             {/* Self-close the Header here so it does not expect children */}
             <Header />
 
-            <main style={{ flex: 1, padding: '2rem' }}>
+            <main style={{ flex: 1, padding: 0, display: 'flex', flexDirection: 'column' }}>
                 {children}
             </main>
 
