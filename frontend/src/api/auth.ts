@@ -14,7 +14,6 @@ export async function login(email: string, password: string): Promise<void> {
 
     const data = await res.json()
     localStorage.setItem('loggedIn', 'true')
-    print(data)
     if (data.customerId) localStorage.setItem('customerId', data.customerId)
 }
 

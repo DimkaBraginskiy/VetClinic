@@ -75,6 +75,28 @@ public class AppointmentsController : ControllerBase
         }
         catch (KeyNotFoundException ex) { return NotFound(ex.Message); }
     }
+    
+    [HttpGet("veterinarian")]
+    public async Task<IActionResult> GetVeterinarianAppointments([FromQuery] Guid veterinarianId)
+    {
+        try
+        {
+            var result = await _appointmentsService.GetVeterinarianAppointmentsAsync(veterinarianId);
+            return Ok(result);
+        }
+        catch (KeyNotFoundException ex) { return NotFound(ex.Message); }
+    }
+
+    [HttpGet("veterinarian/{id:guid}")]
+    public async Task<IActionResult> GetVeterinarianAppointmentById(Guid id, [FromQuery] Guid veterinarianId)
+    {
+        try
+        {
+            var result = await _appointmentsService.GetVeterinarianAppointmentByIdAsync(id, veterinarianId);
+            return Ok(result);
+        }
+        catch (KeyNotFoundException ex) { return NotFound(ex.Message); }
+    }
 
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> DeleteAppointment(Guid id, [FromQuery] Guid customerId)

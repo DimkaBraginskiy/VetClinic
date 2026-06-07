@@ -38,6 +38,18 @@ export async function getAppointmentById(id: string, customerId: string): Promis
     return res.json()
 }
 
+export async function getVetAppointments(veterinarianId: string): Promise<AppointmentMinimal[]> {
+    const res = await fetch(`${BASE}/appointments/veterinarian?veterinarianId=${veterinarianId}`)
+    if (!res.ok) throw new Error('Failed to fetch appointments')
+    return res.json()
+}
+
+export async function getVetAppointmentById(id: string, veterinarianId: string): Promise<Appointment> {
+    const res = await fetch(`${BASE}/appointments/veterinarian/${id}?veterinarianId=${veterinarianId}`)
+    if (!res.ok) throw new Error('Failed to fetch appointment')
+    return res.json()
+}
+
 export async function cancelAppointment(appointmentId: string): Promise<void> {
     const res = await fetch(`${BASE}/appointments/cancel/${appointmentId}`, {
         method: 'PUT',

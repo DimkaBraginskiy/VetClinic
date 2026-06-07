@@ -222,23 +222,21 @@ public class Appointment
     public void ApplyDiscount(Discount discount)
     {
         ArgumentNullException.ThrowIfNull(discount);
-        
+
         if (_discounts.Any(d => d.Id == discount.Id))
             throw new InvalidOperationException("Discount already applied.");
 
         if (Status != AppointmentStatus.Scheduled)
             throw new InvalidOperationException("Discounts can be applied only to a scheduled appointment");
-        
+
         _discounts.Add(discount);
-        discount.AddAppointment(this);
     }
-    
+
     public void DiscardDiscount(Guid discountId)
     {
         var discount = _discounts.FirstOrDefault(d => d.Id == discountId)
             ?? throw new ArgumentException("Discount not found.");
         _discounts.Remove(discount);
-        discount.RemoveAppointment(this);
     }
 
     public decimal GetTotalPrice()

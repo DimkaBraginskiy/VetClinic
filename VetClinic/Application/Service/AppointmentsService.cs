@@ -82,14 +82,17 @@ public class AppointmentsService : IAppointmentService
             customer,
             vet,
             animal);
-
+        
         if (discount != null)
+        {
             appointment.ApplyDiscount(discount);
+        }
+
+        _context.Appointments.Add(appointment);
 
         if (dto.LoyaltyPointsToRedeem > 0)
             customer.RedeemPoints(dto.LoyaltyPointsToRedeem);
 
-        _context.Appointments.Add(appointment);
         await _context.SaveChangesAsync();
 
         return AppointmentMapper.ToResponseDto(appointment);
@@ -146,16 +149,19 @@ public class AppointmentsService : IAppointmentService
             animal,
             address,
             treatment);
-
+        
         if (discount != null)
+        {
             appointment.ApplyDiscount(discount);
+        }
+
+        _context.Appointments.Add(appointment);
 
         if (dto.LoyaltyPointsToRedeem > 0)
             customer.RedeemPoints(dto.LoyaltyPointsToRedeem);
 
-        _context.Appointments.Add(appointment);
         await _context.SaveChangesAsync();
-
+        
         return AppointmentMapper.ToResponseDto(appointment);
     }
 
@@ -217,14 +223,17 @@ public class AppointmentsService : IAppointmentService
             dto.ArriveTime,
             cabinet,
             treatment);
-
+        
         if (discount != null)
+        {
             appointment.ApplyDiscount(discount);
+        }
+
+        _context.Appointments.Add(appointment);
 
         if (dto.LoyaltyPointsToRedeem > 0)
             customer.RedeemPoints(dto.LoyaltyPointsToRedeem);
 
-        _context.Appointments.Add(appointment);
         await _context.SaveChangesAsync();
 
         return AppointmentMapper.ToResponseDto(appointment);
@@ -261,6 +270,35 @@ public class AppointmentsService : IAppointmentService
             .Include(a => a.Cabinet)
             .FirstOrDefaultAsync()
             ?? throw new KeyNotFoundException("Appointment not found.");
+
+        return AppointmentMapper.ToResponseDto(appointment);
+    }
+    
+    public async Task<List<AppointmentMimimalResponseDto>> GetVeterinarianAppointmentsAsync(Guid veterinarianId)
+    {
+        var appointments = await _context.Appointments
+            .Where(a => a.VeterinarianId == veterinarianId)
+            .Include(a => a.Veterinarian)
+            .Include(a => a.Animals)
+            .Include(a => a.Treatment)
+            .Include(a => a.Discounts)
+            .OrderByDescending(a => a.StartDate)
+            .ToListAsync();
+
+        return appointments.Select(AppointmentMapper.ToMinimalDto).ToList();
+    }
+
+    public async Task<ScheduledAppointmentResponseDto> GetVeterinarianAppointmentByIdAsync(Guid appointmentId, Guid veterinarianId)
+    {
+        var appointment = await _context.Appointments
+                              .Where(a => a.Id == appointmentId && a.VeterinarianId == veterinarianId)
+                              .Include(a => a.Veterinarian)
+                              .Include(a => a.Animals)
+                              .Include(a => a.Treatment)
+                              .Include(a => a.Discounts)
+                              .Include(a => a.Cabinet)
+                              .FirstOrDefaultAsync()
+                          ?? throw new KeyNotFoundException("Appointment not found.");
 
         return AppointmentMapper.ToResponseDto(appointment);
     }

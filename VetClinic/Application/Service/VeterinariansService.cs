@@ -142,18 +142,15 @@ public class VeterinariansService : IVeterinariansService
                 if (cursor > now)
                 {
                     var slotEnd = cursor.AddMinutes(durationMinutes);
-                    // A candidate [cursor, slotEnd] is invalid if it overlaps with any
-                    // busy interval when both are expanded by 15 min:
-                    // i.e. cursor < b.end  AND  slotEnd + 15min > b.start
                     var slotEndWithBreak = slotEnd.AddMinutes(15);
-                    var blocked = busyIntervals.Any(b =>
-                        cursor < b.end && slotEndWithBreak > b.start);
+        
+                    var blocked = busyIntervals.Any(b => cursor < b.end && slotEndWithBreak > b.start);
 
                     if (!blocked)
                         slots.Add(cursor);
                 }
-
-                cursor = cursor.AddMinutes(15);
+                
+                cursor = cursor.AddMinutes(durationMinutes + 15); 
             }
 
             if (slots.Count == 0) continue;
