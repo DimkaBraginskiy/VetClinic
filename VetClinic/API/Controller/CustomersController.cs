@@ -27,6 +27,17 @@ public class CustomersController : ControllerBase
         catch (ArgumentException ex)         { return BadRequest(ex.Message); }
     }
 
+    [HttpGet("{customerId}/loyalty-points")]
+    public async Task<IActionResult> GetLoyaltyPoints(Guid customerId)
+    {
+        try
+        {
+            var points = await _customersService.GetLoyaltyPointsAsync(customerId);
+            return Ok(new { loyaltyPoints = points });
+        }
+        catch (KeyNotFoundException ex) { return NotFound(ex.Message); }
+    }
+
     [HttpGet("{customerId}/appointments/count")]
     public async Task<IActionResult> GetAppointmentCount(Guid customerId)
     {

@@ -2,6 +2,13 @@ import type { Animal } from '../types/animal'
 
 const BASE = 'http://localhost:5258/api'
 
+export async function getLoyaltyPoints(customerId: string): Promise<number> {
+    const res = await fetch(`${BASE}/customers/${customerId}/loyalty-points`)
+    if (!res.ok) return 0
+    const data = await res.json()
+    return (data as { loyaltyPoints: number }).loyaltyPoints ?? 0
+}
+
 export async function getAppointmentCount(customerId: string): Promise<number> {
     const res = await fetch(`${BASE}/customers/${customerId}/appointments/count`)
     if (!res.ok) return 0

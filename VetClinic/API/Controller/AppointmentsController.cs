@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using VetClinic.Application.DTOs.Request;
-using VetClinic.Application.Service;
 using VetClinic.Application.Services;
 
 namespace VetClinic.API.Controller;
@@ -53,5 +52,16 @@ public class AppointmentsController : ControllerBase
         catch (KeyNotFoundException ex)      { return NotFound(ex.Message); }
         catch (ArgumentException ex)         { return BadRequest(ex.Message); }
         catch (InvalidOperationException ex) { return UnprocessableEntity(ex.Message); }
+    }
+
+    [HttpGet("validate-discount")]
+    public async Task<IActionResult> ValidateDiscountAsync([FromQuery] string code)
+    {
+        try
+        {
+            var result = await _appointmentsService.ValidateDiscountAsync(code);
+            return Ok(result);
+        }
+        catch (KeyNotFoundException ex) { return NotFound(ex.Message); }
     }
 }

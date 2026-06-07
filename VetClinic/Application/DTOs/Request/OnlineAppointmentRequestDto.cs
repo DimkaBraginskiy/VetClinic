@@ -8,4 +8,5 @@ public class OnlineAppointmentRequestDto
     public DateTime StartDate { get; set; }
     public decimal BasePrice { get; set; }
     public string? PromoCode { get; set; }
+    public decimal LoyaltyPointsToRedeem { get; set; } = 0;
 }

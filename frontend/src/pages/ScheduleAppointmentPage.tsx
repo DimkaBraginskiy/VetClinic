@@ -1,16 +1,18 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import AppLayout from '../components/AppLayout'
-import { getAnimals } from '../api/customer'
+import { getAnimals, getLoyaltyPoints } from '../api/customer'
 import { getClinics } from '../api/clinics'
+import { getAvailableVets, validateDiscount, bookAppointment } from '../api/appointment'
 import { getCustomerId } from '../api/auth'
 import type { Animal } from '../types/animal'
 import type { ClinicOption } from '../types/clinic'
+import type { VetAvailability } from '../types/appointment'
 import styles from './ScheduleAppointmentPage.module.css'
 
-type ApptType    = 'Consultation' | 'Treatment'
-type ApptMode    = 'Online' | 'Home' | 'Clinic'
-type StepKey     = 'animal' | 'type' | 'treatmentType' | 'mode' | 'clinic' | 'address' | 'day'
+type ApptType = 'Consultation' | 'Treatment'
+type ApptMode = 'Online' | 'Home' | 'Clinic'
+type StepKey  = 'animal' | 'type' | 'treatmentType' | 'mode' | 'clinic' | 'address' | 'day' | 'vet' | 'summary'
 
 const TREATMENT_TYPES = [
     { value: 'Checkup',      icon: '🩺', label: 'Checkup' },
@@ -32,10 +34,10 @@ function getAvailableModes(type: ApptType, treatmentType: string | null) {
         case 'Vaccine':
         case 'Surgery':
         case 'Eyesight':
-            return [ALL_MODES.Clinic]                          // clinic only — no choice
+            return [ALL_MODES.Clinic]
         case 'Checkup':
         case 'Chiropractic':
-            return [ALL_MODES.Home, ALL_MODES.Clinic]          // home or clinic
+            return [ALL_MODES.Home, ALL_MODES.Clinic]
         default:
             return [ALL_MODES.Home, ALL_MODES.Clinic]
     }
@@ -44,10 +46,10 @@ function getAvailableModes(type: ApptType, treatmentType: string | null) {
 function buildSequence(type: ApptType | null, _treatmentType: string | null, effectiveMode: ApptMode | null): StepKey[] {
     const steps: StepKey[] = ['animal', 'type']
     if (type === 'Treatment') steps.push('treatmentType')
-    steps.push('mode')   // always shown — single option is auto-selected but still visible
+    steps.push('mode')
     if (effectiveMode === 'Clinic') steps.push('clinic')
     if (effectiveMode === 'Home')   steps.push('address')
-    steps.push('day')
+    steps.push('day', 'vet', 'summary')
     return steps
 }
 
@@ -57,6 +59,14 @@ function nextDays(count: number) {
         d.setDate(d.getDate() + i + 1)
         return d
     })
+}
+
+function fmtTime(isoStr: string) {
+    return new Date(isoStr).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })
+}
+
+function fmtDate(d: Date) {
+    return d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
 }
 
 const DAYS   = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
@@ -73,11 +83,26 @@ export default function ScheduleAppointmentPage() {
     const [mode,          setMode]           = useState<ApptMode | null>(null)
     const [clinicId,      setClinicId]       = useState<string | null>(null)
     const [selectedDay,   setSelectedDay]    = useState<Date | null>(null)
+    const [selectedVetId, setSelectedVetId]  = useState<string | null>(null)
+    const [selectedSlot,  setSelectedSlot]   = useState<string | null>(null)
     const [address, setAddress] = useState({ country: '', city: '', street: '', building: '', flat: '', postalCode: '' })
 
     // data
-    const [animals,  setAnimals]  = useState<Animal[]>([])
-    const [clinics,  setClinics]  = useState<ClinicOption[]>([])
+    const [animals,       setAnimals]       = useState<Animal[]>([])
+    const [clinics,       setClinics]       = useState<ClinicOption[]>([])
+    const [availableVets, setAvailableVets] = useState<VetAvailability[]>([])
+    const [vetsLoading,   setVetsLoading]   = useState(false)
+    const [vetsError,     setVetsError]     = useState<string | null>(null)
+
+    // summary state
+    const [promoInput,      setPromoInput]      = useState('')
+    const [appliedDiscount, setAppliedDiscount] = useState<{ promoCode: string; percentage: number } | null>(null)
+    const [discountError,   setDiscountError]   = useState<string | null>(null)
+    const [discountLoading, setDiscountLoading] = useState(false)
+    const [loyaltyAvail,    setLoyaltyAvail]    = useState<number | null>(null)
+    const [loyaltyInput,    setLoyaltyInput]    = useState('')
+    const [isBooking,       setIsBooking]       = useState(false)
+    const [bookingError,    setBookingError]    = useState<string | null>(null)
 
     useEffect(() => {
         const id = getCustomerId()
@@ -92,9 +117,30 @@ export default function ScheduleAppointmentPage() {
         else setMode(null)
     }, [apptType, treatmentType])
 
-    // if only one mode is available for this treatment, it's auto-determined
-    const availableModes  = apptType ? getAvailableModes(apptType, treatmentType) : []
-    const effectiveMode   = availableModes.length === 1 ? availableModes[0].value : mode
+    // fetch available vets or loyalty points when we enter those steps
+    useEffect(() => {
+        const currentStepKey = sequence[stepIdx]
+
+        if (currentStepKey === 'vet' && selectedDay) {
+            setVetsLoading(true)
+            setVetsError(null)
+            setAvailableVets([])
+            getAvailableVets(selectedDay, clinicId, treatmentType)
+                .then(setAvailableVets)
+                .catch(() => setVetsError('Could not load veterinarians. Please go back and try again.'))
+                .finally(() => setVetsLoading(false))
+        }
+
+        if (currentStepKey === 'summary') {
+            const customerId = getCustomerId()
+            if (customerId) {
+                getLoyaltyPoints(customerId).then(setLoyaltyAvail).catch(() => setLoyaltyAvail(0))
+            }
+        }
+    }, [stepIdx]) // eslint-disable-line react-hooks/exhaustive-deps
+
+    const availableModes = apptType ? getAvailableModes(apptType, treatmentType) : []
+    const effectiveMode  = availableModes.length === 1 ? availableModes[0].value : mode
 
     const sequence    = buildSequence(apptType, treatmentType, effectiveMode)
     const currentStep = sequence[stepIdx]
@@ -109,35 +155,126 @@ export default function ScheduleAppointmentPage() {
             case 'clinic':        return !!clinicId
             case 'address':       return !!(address.country && address.city && address.street && address.building)
             case 'day':           return !!selectedDay
+            case 'vet':           return !!selectedVetId && !!selectedSlot
+            case 'summary':       return !isBooking
             default:              return false
         }
     }
 
     const goBack = () => {
         if (stepIdx === 0) { navigate('/appointments'); return }
-        // reset downstream state when going back
-        if (currentStep === 'mode')   { setMode(null); setClinicId(null); setSelectedDay(null) }
-        if (currentStep === 'clinic') { setClinicId(null) }
-        if (currentStep === 'address'){ setAddress({ country:'', city:'', street:'', building:'', flat:'', postalCode:'' }) }
+        if (currentStep === 'mode')    { setMode(null); setClinicId(null); setSelectedDay(null) }
+        if (currentStep === 'clinic')  { setClinicId(null) }
+        if (currentStep === 'address') { setAddress({ country:'', city:'', street:'', building:'', flat:'', postalCode:'' }) }
+        if (currentStep === 'vet')     { setSelectedVetId(null); setSelectedSlot(null); setAvailableVets([]) }
+        if (currentStep === 'summary') { setAppliedDiscount(null); setDiscountError(null); setPromoInput(''); setLoyaltyInput(''); setBookingError(null) }
         setStepIdx(i => i - 1)
     }
 
-    const goNext = () => {
+    const goNext = async () => {
+        if (currentStep === 'summary') {
+            await handlePay()
+            return
+        }
+
         const nextStep = sequence[stepIdx + 1]
         if (nextStep === 'clinic' && clinics.length === 0) {
             getClinics().then(setClinics).catch(() => {})
         }
-        if (stepIdx === totalSteps - 1) {
-            // TODO: navigate to vet selection
-            alert('Day selected! Vet selection coming next.')
-            return
-        }
         setStepIdx(i => i + 1)
+    }
+
+    const handleApplyPromo = async () => {
+        const code = promoInput.trim()
+        if (!code) return
+        setDiscountLoading(true)
+        setDiscountError(null)
+        setAppliedDiscount(null)
+        try {
+            const result = await validateDiscount(code)
+            setAppliedDiscount(result)
+        } catch {
+            setDiscountError('Promo code not found or invalid.')
+        } finally {
+            setDiscountLoading(false)
+        }
+    }
+
+    const handlePay = async () => {
+        const customerId = getCustomerId()
+        if (!customerId || !selectedVetId || !animalId || !selectedSlot || !effectiveMode) return
+
+        const loyaltyToRedeem = Math.min(
+            Math.max(0, parseFloat(loyaltyInput) || 0),
+            loyaltyAvail ?? 0
+        )
+        const basePrice = selectedVet?.offeringPrice ?? 0
+
+        const base = {
+            veterinarianId: selectedVetId,
+            customerId,
+            animalId,
+            startDate: selectedSlot,
+            basePrice,
+            promoCode: appliedDiscount?.promoCode ?? null,
+            loyaltyPointsToRedeem: loyaltyToRedeem,
+        }
+
+        let dto: Record<string, unknown>
+
+        if (effectiveMode === 'Online') {
+            dto = base
+        } else if (effectiveMode === 'Home') {
+            dto = {
+                ...base,
+                type: apptType,
+                treatmentType: treatmentType ?? null,
+                address: {
+                    country: address.country,
+                    city: address.city,
+                    street: address.street,
+                    building: parseInt(address.building) || 0,
+                    flat: address.flat ? parseInt(address.flat) : null,
+                    postalCode: address.postalCode || null,
+                },
+            }
+        } else {
+            const arriveTime = new Date(new Date(selectedSlot).getTime() - 10 * 60 * 1000).toISOString()
+            dto = {
+                ...base,
+                type: apptType,
+                treatmentType: treatmentType ?? null,
+                clinicId,
+                arriveTime,
+            }
+        }
+
+        setIsBooking(true)
+        setBookingError(null)
+        try {
+            await bookAppointment(effectiveMode, dto)
+            navigate('/appointments')
+        } catch (e) {
+            setBookingError((e as Error).message ?? 'Something went wrong. Please try again.')
+        } finally {
+            setIsBooking(false)
+        }
     }
 
     const animalSpeciesIcon = (species: string | null) =>
         species === 'Dog' ? '🐕' : species === 'Cat' ? '🐈' : species === 'Rabbit' ? '🐇' :
         species === 'Bird' ? '🐦' : '🐾'
+
+    const selectedVet    = availableVets.find(v => v.veterinarianId === selectedVetId) ?? null
+    const selectedAnimal = animals.find(a => a.id === animalId) ?? null
+    const selectedClinic = clinics.find(c => c.id === clinicId) ?? null
+
+    // price calculation for summary
+    const basePrice      = selectedVet?.offeringPrice ?? 0
+    const discountPct    = appliedDiscount?.percentage ?? 0
+    const discountAmt    = basePrice * (discountPct / 100)
+    const loyaltyNum     = Math.min(Math.max(0, parseFloat(loyaltyInput) || 0), loyaltyAvail ?? 0)
+    const totalPrice     = Math.max(0, basePrice - discountAmt - loyaltyNum)
 
     return (
         <AppLayout>
@@ -288,13 +425,234 @@ export default function ScheduleAppointmentPage() {
                     </div>
                 )}
 
+                {/* ── Veterinarian selection ── */}
+                {currentStep === 'vet' && (
+                    <div className={styles.vetList}>
+                        {vetsLoading && (
+                            <p className={styles.empty}>Loading available veterinarians…</p>
+                        )}
+                        {vetsError && (
+                            <p className={styles.errorMsg}>{vetsError}</p>
+                        )}
+                        {!vetsLoading && !vetsError && availableVets.length === 0 && (
+                            <div className={styles.noVets}>
+                                <span className={styles.noVetsIcon}>😔</span>
+                                <p>No veterinarians are available on this day.</p>
+                                <p className={styles.noVetsSub}>Please go back and select a different day.</p>
+                            </div>
+                        )}
+                        {availableVets.map(vet => (
+                            <div key={vet.veterinarianId}
+                                 className={`${styles.vetCard} ${selectedVetId === vet.veterinarianId ? styles.vetCardSelected : ''}`}
+                            >
+                                <div className={styles.vetHeader}>
+                                    <div className={styles.vetAvatar}>
+                                        {vet.type === 'Surgeon' ? '🔬' : '👨‍⚕️'}
+                                    </div>
+                                    <div className={styles.vetInfo}>
+                                        <span className={styles.vetName}>
+                                            {vet.firstName} {vet.lastName}
+                                        </span>
+                                        <span className={styles.vetType}>
+                                            {vet.type} · {vet.clinicVetId}
+                                        </span>
+                                        <span className={styles.vetOffering}>
+                                            {vet.offeringType
+                                                ? `${vet.offeringType} · ${vet.appointmentDurationMinutes} min · €${vet.offeringPrice?.toFixed(2)}`
+                                                : `Consultation · ${vet.appointmentDurationMinutes} min`
+                                            }
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div className={styles.slotGrid}>
+                                    {vet.availableHours.map(slot => {
+                                        const isSelected = selectedVetId === vet.veterinarianId && selectedSlot === slot
+                                        return (
+                                            <button
+                                                key={slot}
+                                                className={`${styles.slotBtn} ${isSelected ? styles.slotSelected : ''}`}
+                                                onClick={() => {
+                                                    setSelectedVetId(vet.veterinarianId)
+                                                    setSelectedSlot(slot)
+                                                }}
+                                            >
+                                                {fmtTime(slot)}
+                                            </button>
+                                        )
+                                    })}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
+
+                {/* ── Summary ── */}
+                {currentStep === 'summary' && (
+                    <div className={styles.summaryPage}>
+
+                        {/* Section 1: Appointment details */}
+                        <div className={styles.summarySection}>
+                            <h3 className={styles.sectionTitle}>Appointment Details</h3>
+                            <div className={styles.summaryRows}>
+                                <SummaryRow label="Animal"    value={selectedAnimal ? `${selectedAnimal.name} (${selectedAnimal.species})` : '—'} />
+                                <SummaryRow label="Type"      value={apptType ?? '—'} />
+                                {treatmentType && <SummaryRow label="Treatment" value={treatmentType} />}
+                                <SummaryRow label="Mode"      value={effectiveMode ?? '—'} />
+                                {effectiveMode === 'Clinic' && selectedClinic && (
+                                    <SummaryRow label="Clinic" value={`${selectedClinic.name} — ${selectedClinic.city}`} />
+                                )}
+                                {effectiveMode === 'Home' && (
+                                    <SummaryRow label="Address"
+                                        value={`${address.street} ${address.building}, ${address.city}`} />
+                                )}
+                                {effectiveMode === 'Online' && (
+                                    <SummaryRow label="Meeting" value="Video call link will be sent" />
+                                )}
+                                <SummaryRow label="Date" value={selectedDay ? fmtDate(selectedDay) : '—'} />
+                                <SummaryRow label="Time" value={selectedSlot ? fmtTime(selectedSlot) : '—'} />
+                            </div>
+                        </div>
+
+                        {/* Section 2: Veterinarian */}
+                        <div className={styles.summarySection}>
+                            <h3 className={styles.sectionTitle}>Veterinarian</h3>
+                            {selectedVet ? (
+                                <div className={styles.vetSummaryRow}>
+                                    <span className={styles.vetSummaryAvatar}>
+                                        {selectedVet.type === 'Surgeon' ? '🔬' : '👨‍⚕️'}
+                                    </span>
+                                    <div className={styles.summaryRows} style={{ flex: 1 }}>
+                                        <SummaryRow label="Name"     value={`${selectedVet.firstName} ${selectedVet.lastName}`} />
+                                        <SummaryRow label="Type"     value={selectedVet.type} />
+                                        <SummaryRow label="ID"       value={selectedVet.clinicVetId} />
+                                        <SummaryRow label="Duration" value={`${selectedVet.appointmentDurationMinutes} min`} />
+                                        <SummaryRow label="Price"    value={selectedVet.offeringPrice != null ? `€${selectedVet.offeringPrice.toFixed(2)}` : 'Included'} />
+                                    </div>
+                                </div>
+                            ) : (
+                                <p className={styles.empty}>No veterinarian selected.</p>
+                            )}
+                        </div>
+
+                        {/* Section 3: Promo code */}
+                        <div className={styles.summarySection}>
+                            <h3 className={styles.sectionTitle}>Promo Code</h3>
+                            {appliedDiscount ? (
+                                <div className={styles.discountApplied}>
+                                    <span className={styles.discountBadge}>
+                                        {appliedDiscount.promoCode} — {appliedDiscount.percentage}% off
+                                    </span>
+                                    <button className={styles.removeBtn}
+                                        onClick={() => { setAppliedDiscount(null); setPromoInput('') }}>
+                                        Remove
+                                    </button>
+                                </div>
+                            ) : (
+                                <div className={styles.promoRow}>
+                                    <input
+                                        className={styles.input}
+                                        placeholder="Enter promo code"
+                                        value={promoInput}
+                                        onChange={e => { setPromoInput(e.target.value.toUpperCase()); setDiscountError(null) }}
+                                        onKeyDown={e => e.key === 'Enter' && handleApplyPromo()}
+                                    />
+                                    <button
+                                        className={styles.applyBtn}
+                                        onClick={handleApplyPromo}
+                                        disabled={discountLoading || !promoInput.trim()}
+                                    >
+                                        {discountLoading ? '…' : 'Apply'}
+                                    </button>
+                                </div>
+                            )}
+                            {discountError && <p className={styles.errorMsg}>{discountError}</p>}
+                        </div>
+
+                        {/* Section 4: Loyalty points + Total */}
+                        <div className={styles.summarySection}>
+                            <h3 className={styles.sectionTitle}>Loyalty Points & Total</h3>
+
+                            <div className={styles.loyaltyRow}>
+                                <span className={styles.loyaltyLabel}>
+                                    Available: <strong>{loyaltyAvail?.toFixed(2) ?? '…'} pts</strong>
+                                </span>
+                                <div className={styles.loyaltyInputRow}>
+                                    <label className={styles.fieldLabel}>Redeem points</label>
+                                    <input
+                                        className={styles.input}
+                                        type="number"
+                                        min="0"
+                                        max={loyaltyAvail ?? 0}
+                                        step="1"
+                                        placeholder="0"
+                                        value={loyaltyInput}
+                                        onChange={e => setLoyaltyInput(e.target.value)}
+                                    />
+                                </div>
+                            </div>
+
+                            <div className={styles.priceBreakdown}>
+                                <div className={styles.priceRow}>
+                                    <span>Base price</span>
+                                    <span>€{basePrice.toFixed(2)}</span>
+                                </div>
+                                {discountPct > 0 && (
+                                    <div className={`${styles.priceRow} ${styles.priceDiscount}`}>
+                                        <span>Discount ({discountPct}%)</span>
+                                        <span>−€{discountAmt.toFixed(2)}</span>
+                                    </div>
+                                )}
+                                {loyaltyNum > 0 && (
+                                    <div className={`${styles.priceRow} ${styles.priceDiscount}`}>
+                                        <span>Loyalty points</span>
+                                        <span>−€{loyaltyNum.toFixed(2)}</span>
+                                    </div>
+                                )}
+                                <div className={styles.priceDivider} />
+                                <div className={`${styles.priceRow} ${styles.priceTotal}`}>
+                                    <span>Total</span>
+                                    <span>€{totalPrice.toFixed(2)}</span>
+                                </div>
+                            </div>
+
+                            {bookingError && <p className={styles.errorMsg}>{bookingError}</p>}
+
+                            <button
+                                className={styles.payBtn}
+                                onClick={handlePay}
+                                disabled={isBooking}
+                            >
+                                {isBooking ? 'Booking…' : `Pay €${totalPrice.toFixed(2)}`}
+                            </button>
+                        </div>
+
+                    </div>
+                )}
+
             </div>
 
-            <button className={styles.backBtn} onClick={goBack}>← Back</button>
-            <button className={styles.nextBtn} onClick={goNext} disabled={!canProceed()}>
-                {stepIdx === totalSteps - 1 ? 'Confirm day →' : 'Next →'}
-            </button>
+            {currentStep !== 'summary' && (
+                <>
+                    <button className={styles.backBtn} onClick={goBack}>← Back</button>
+                    <button className={styles.nextBtn} onClick={goNext} disabled={!canProceed()}>
+                        {nextBtnLabel(currentStep)}
+                    </button>
+                </>
+            )}
+            {currentStep === 'summary' && (
+                <button className={styles.backBtn} onClick={goBack}>← Back</button>
+            )}
         </AppLayout>
+    )
+}
+
+function SummaryRow({ label, value }: { label: string; value: string }) {
+    return (
+        <div className={styles.summaryRow}>
+            <span className={styles.summaryRowLabel}>{label}</span>
+            <span className={styles.summaryRowValue}>{value}</span>
+        </div>
     )
 }
 
@@ -307,6 +665,16 @@ function stepHeading(step: StepKey): string {
         case 'clinic':        return 'Choose a clinic'
         case 'address':       return 'Where should the vet come?'
         case 'day':           return 'Pick a day'
+        case 'vet':           return 'Choose a veterinarian & time'
+        case 'summary':       return 'Confirm your appointment'
         default:              return ''
+    }
+}
+
+function nextBtnLabel(step: StepKey): string {
+    switch (step) {
+        case 'day':     return 'Find veterinarians →'
+        case 'vet':     return 'Review →'
+        default:        return 'Next →'
     }
 }

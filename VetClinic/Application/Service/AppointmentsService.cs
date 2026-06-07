@@ -18,6 +18,15 @@ public class AppointmentsService : IAppointmentService
         _context = context;
     }
 
+    public async Task<DiscountInfoDto> ValidateDiscountAsync(string promoCode)
+    {
+        var code     = promoCode.Trim().ToUpper();
+        var discount = await _context.Discounts.FirstOrDefaultAsync(d => d.PromoCode == code)
+            ?? throw new KeyNotFoundException($"Promo code '{promoCode}' not found.");
+
+        return new DiscountInfoDto(discount.PromoCode, discount.Percentage);
+    }
+
     public async Task<ScheduledAppointmentResponseDto> ScheduleOnlineAsync(OnlineAppointmentRequestDto dto)
     {
         var vet = await _context.Veterinarians
@@ -53,6 +62,9 @@ public class AppointmentsService : IAppointmentService
 
         if (discount != null)
             appointment.ApplyDiscount(discount);
+
+        if (dto.LoyaltyPointsToRedeem > 0)
+            customer.RedeemPoints(dto.LoyaltyPointsToRedeem);
 
         _context.Appointments.Add(appointment);
         await _context.SaveChangesAsync();
@@ -114,6 +126,9 @@ public class AppointmentsService : IAppointmentService
 
         if (discount != null)
             appointment.ApplyDiscount(discount);
+
+        if (dto.LoyaltyPointsToRedeem > 0)
+            customer.RedeemPoints(dto.LoyaltyPointsToRedeem);
 
         _context.Appointments.Add(appointment);
         await _context.SaveChangesAsync();
@@ -182,6 +197,9 @@ public class AppointmentsService : IAppointmentService
 
         if (discount != null)
             appointment.ApplyDiscount(discount);
+
+        if (dto.LoyaltyPointsToRedeem > 0)
+            customer.RedeemPoints(dto.LoyaltyPointsToRedeem);
 
         _context.Appointments.Add(appointment);
         await _context.SaveChangesAsync();

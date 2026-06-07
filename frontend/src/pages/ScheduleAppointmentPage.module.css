@@ -242,3 +242,282 @@
 .nextBtn:disabled { opacity: 0.35; cursor: not-allowed; box-shadow: none; }
 
 .empty { color: var(--text); font-size: 0.9rem; }
+
+.errorMsg {
+    color: #dc2626;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+/* ── Vet selection list ───────────────────────────────── */
+
+.vetList {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+    max-width: 720px;
+}
+
+.vetCard {
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 2px solid var(--border);
+    border-radius: 16px;
+    padding: 1.25rem 1.5rem;
+    transition: border-color 0.15s, background 0.15s;
+}
+
+.vetCard:hover       { border-color: var(--accent-border); }
+.vetCardSelected     { border-color: var(--accent) !important; background: var(--accent-bg) !important; }
+
+.vetHeader {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.vetAvatar { font-size: 2.5rem; flex-shrink: 0; line-height: 1; }
+
+.vetInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.vetName     { font-size: 1.05rem; font-weight: 700; color: var(--text-h); }
+.vetType     { font-size: 0.78rem; color: var(--text); }
+.vetOffering { font-size: 0.78rem; color: var(--text); font-style: italic; }
+
+/* ── Time slot buttons ───────────────────────────────── */
+
+.slotGrid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.slotBtn {
+    padding: 0.45rem 0.875rem;
+    background: rgba(255,255,255,0.6);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-h);
+    cursor: pointer;
+    font-family: inherit;
+    transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+
+.slotBtn:hover  { border-color: var(--accent-border); background: var(--accent-bg); }
+
+.slotSelected {
+    border-color: var(--accent) !important;
+    background: var(--accent) !important;
+    color: #fff !important;
+}
+
+/* ── No vets available ───────────────────────────────── */
+
+.noVets {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 3rem 1rem;
+    color: var(--text);
+    text-align: center;
+}
+
+.noVetsIcon { font-size: 3rem; }
+.noVetsSub  { font-size: 0.82rem; opacity: 0.7; }
+
+/* ── Summary full-page layout ────────────────────────── */
+
+.summaryPage {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    width: 100%;
+    max-width: 640px;
+}
+
+.summarySection {
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 2px solid var(--border);
+    border-radius: 16px;
+    padding: 1.5rem;
+}
+
+.sectionTitle {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+    margin: 0 0 1rem;
+}
+
+.summaryRows {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.summaryRow {
+    display: grid;
+    grid-template-columns: 8rem 1fr;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.summaryRow:last-child { border-bottom: none; }
+
+.summaryRowLabel { font-size: 0.8rem; font-weight: 600; color: var(--text); }
+.summaryRowValue { font-size: 0.88rem; color: var(--text-h); font-weight: 500; }
+
+/* ── Vet summary row ─────────────────────────────────── */
+
+.vetSummaryRow {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.vetSummaryAvatar { font-size: 2.5rem; flex-shrink: 0; line-height: 1; padding-top: 0.25rem; }
+
+/* ── Promo code ──────────────────────────────────────── */
+
+.promoRow {
+    display: flex;
+    gap: 0.625rem;
+    align-items: center;
+}
+
+.promoRow .input { flex: 1; }
+
+.applyBtn {
+    padding: 0.6rem 1.2rem;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: opacity 0.15s;
+    font-family: inherit;
+}
+
+.applyBtn:hover    { opacity: 0.88; }
+.applyBtn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.discountApplied {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.discountBadge {
+    flex: 1;
+    padding: 0.5rem 0.875rem;
+    background: rgba(16, 185, 129, 0.12);
+    border: 1.5px solid rgba(16, 185, 129, 0.4);
+    border-radius: 8px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #065f46;
+}
+
+.removeBtn {
+    padding: 0.45rem 0.875rem;
+    background: transparent;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.82rem;
+    color: var(--text);
+    cursor: pointer;
+    font-family: inherit;
+    transition: border-color 0.15s;
+}
+
+.removeBtn:hover { border-color: #dc2626; color: #dc2626; }
+
+/* ── Loyalty points ──────────────────────────────────── */
+
+.loyaltyRow {
+    display: flex;
+    align-items: flex-end;
+    gap: 1.5rem;
+    margin-bottom: 1.25rem;
+}
+
+.loyaltyLabel {
+    font-size: 0.88rem;
+    color: var(--text);
+}
+
+.loyaltyInputRow {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    min-width: 140px;
+}
+
+/* ── Price breakdown ─────────────────────────────────── */
+
+.priceBreakdown {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin-bottom: 1.25rem;
+}
+
+.priceRow {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    color: var(--text-h);
+}
+
+.priceDiscount { color: #059669; }
+
+.priceDivider {
+    height: 1px;
+    background: var(--border);
+    margin: 0.4rem 0;
+}
+
+.priceTotal {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-h);
+}
+
+/* ── Pay button ──────────────────────────────────────── */
+
+.payBtn {
+    width: 100%;
+    padding: 0.9rem;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(124, 58, 237, 0.3);
+    transition: opacity 0.15s;
+    font-family: inherit;
+}
+
+.payBtn:hover    { opacity: 0.9; }
+.payBtn:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }

@@ -25,7 +25,7 @@ public class Shift
             throw new ArgumentException("Shift can not start in the past.");
         }
 
-        if (!clinic.Veterinarians.Values.Any(v => v.Id == veterinarian.Id))
+        if (veterinarian.ClinicId != clinic.Id)
         {
             throw new InvalidOperationException(
                 "Can not create shift: the veterinarian does not work in a specified clinic.");

@@ -47,6 +47,13 @@ public class CustomersService : ICustomersService
     public async Task<int> GetAppointmentCountAsync(Guid customerId) =>
         await _context.Appointments.CountAsync(a => a.CustomerId == customerId);
 
+    public async Task<decimal> GetLoyaltyPointsAsync(Guid customerId)
+    {
+        var customer = await _context.Customers.FindAsync(customerId)
+            ?? throw new KeyNotFoundException($"Customer with ID {customerId} not found.");
+        return customer.LoyaltyPoints;
+    }
+
     public async Task DeleteCustomerAnimalAsync(Guid customerId, Guid animalId)
     {
         var animal = await _context.Animals

@@ -13,4 +13,5 @@ public class HomeAppointmentRequestDto
     public AddressRequestDto Address { get; set; } = null!;
     public TreatmentType? TreatmentType { get; set; }
     public string? PromoCode { get; set; }
+    public decimal LoyaltyPointsToRedeem { get; set; } = 0;
 }
