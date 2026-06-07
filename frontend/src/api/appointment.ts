@@ -37,7 +37,10 @@ export async function cancelAppointment(appointmentId: string): Promise<void> {
     if (!res.ok) throw new Error('Failed to cancel appointment')
 }
 
-export async function bookAppointment(mode: string, dto: Record<string, unknown>): Promise<void> {
+export async function bookAppointment(
+    mode: string,
+    dto: Record<string, unknown>
+): Promise<{ mode: string; meetingLink: string | null }> {
     const endpoint = mode === 'Online' ? 'online' : mode === 'Home' ? 'home' : 'clinic'
     const res = await fetch(`${BASE}/appointments/${endpoint}`, {
         method: 'POST',
@@ -48,4 +51,6 @@ export async function bookAppointment(mode: string, dto: Record<string, unknown>
         const data = await res.json().catch(() => ({}))
         throw new Error((data as { message?: string }).message ?? 'Failed to book appointment')
     }
+    const data = await res.json()
+    return { mode: data.mode ?? mode, meetingLink: data.meetingLink ?? null }
 }

@@ -49,6 +49,7 @@ public class AppointmentsService : IAppointmentService
         var vet = await _context.Veterinarians
             .Include(v => v.Shifts)
             .Include(v => v.Appointments)
+            .Include(v => v.TreatmentOfferings)
             .FirstOrDefaultAsync(v => v.Id == dto.VeterinarianId)
             ?? throw new KeyNotFoundException("Veterinarian not found.");
 
@@ -69,10 +70,15 @@ public class AppointmentsService : IAppointmentService
                 ?? throw new KeyNotFoundException($"Promo code '{dto.PromoCode}' not found.");
         }
 
+        // Online consultations have no dedicated offering price; fall back to vet's cheapest offering
+        var basePrice = dto.BasePrice > 0
+            ? dto.BasePrice
+            : vet.TreatmentOfferings.OrderBy(o => o.Price).FirstOrDefault()?.Price ?? 0m;
+
         var appointment = Appointment.CreateOnline(
             AppointmentType.Consultation,
             dto.StartDate,
-            dto.BasePrice,
+            basePrice,
             customer,
             vet,
             animal);

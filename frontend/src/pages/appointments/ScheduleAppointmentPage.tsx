@@ -97,6 +97,7 @@ export default function ScheduleAppointmentPage() {
     const [loyaltyInput,    setLoyaltyInput]    = useState('')
     const [isBooking,       setIsBooking]       = useState(false)
     const [bookingError,    setBookingError]    = useState<string | null>(null)
+    const [booked,          setBooked]          = useState<{ mode: string; meetingLink: string | null } | null>(null)
 
     useEffect(() => {
         const id = getCustomerId()
@@ -246,8 +247,8 @@ export default function ScheduleAppointmentPage() {
         setIsBooking(true)
         setBookingError(null)
         try {
-            await bookAppointment(effectiveMode, dto)
-            navigate('/appointments')
+            const result = await bookAppointment(effectiveMode, dto)
+            setBooked(result)
         } catch (e) {
             setBookingError((e as Error).message ?? 'Something went wrong. Please try again.')
         } finally {
@@ -265,6 +266,52 @@ export default function ScheduleAppointmentPage() {
     const discountAmt    = basePrice * (discountPct / 100)
     const loyaltyNum     = Math.min(Math.max(0, parseFloat(loyaltyInput) || 0), loyaltyAvail ?? 0)
     const totalPrice     = Math.max(0, basePrice - discountAmt - loyaltyNum)
+
+    if (booked) {
+        return (
+            <AppLayout>
+                <div className={styles.page}>
+                    <div className={styles.confirmation}>
+                        <p className={styles.confirmIcon}>✓</p>
+                        <h2 className={styles.confirmTitle}>Appointment booked!</h2>
+
+                        {booked.mode === 'Online' && booked.meetingLink ? (
+                            <>
+                                <p className={styles.confirmSub}>
+                                    Your video call link is ready. Join at the time of your appointment.
+                                </p>
+                                <div className={styles.meetingLinkBox}>
+                                    <span className={styles.meetingLinkLabel}>Meeting link</span>
+                                    <a
+                                        href={booked.meetingLink}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className={styles.meetingLink}
+                                    >
+                                        {booked.meetingLink}
+                                    </a>
+                                    <button
+                                        className={styles.copyBtn}
+                                        onClick={() => navigator.clipboard.writeText(booked.meetingLink!)}
+                                    >
+                                        Copy link
+                                    </button>
+                                </div>
+                            </>
+                        ) : (
+                            <p className={styles.confirmSub}>
+                                Your appointment has been scheduled. Bring your buddy to us!! :))
+                            </p>
+                        )}
+
+                        <button className={styles.confirmBtn} onClick={() => navigate('/appointments')}>
+                            View my appointments
+                        </button>
+                    </div>
+                </div>
+            </AppLayout>
+        )
+    }
 
     return (
         <AppLayout>

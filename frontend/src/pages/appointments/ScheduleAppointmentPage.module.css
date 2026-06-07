@@ -409,6 +409,110 @@
     color: var(--text-h);
 }
 
+/* ── Booking confirmation ────────────────────────────── */
+
+.confirmation {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.25rem;
+    width: 100%;
+    max-width: 480px;
+    text-align: center;
+}
+
+.confirmIcon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: rgba(16, 185, 129, 0.15);
+    border: 2px solid rgba(16, 185, 129, 0.4);
+    color: #059669;
+    font-size: 1.75rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+}
+
+.confirmTitle {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--text-h);
+    margin: 0;
+}
+
+.confirmSub {
+    font-size: 0.95rem;
+    color: var(--text);
+    margin: 0;
+    line-height: 1.5;
+}
+
+.meetingLinkBox {
+    width: 100%;
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+    text-align: left;
+}
+
+.meetingLinkLabel {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+}
+
+.meetingLink {
+    font-size: 0.88rem;
+    color: var(--accent);
+    word-break: break-all;
+    text-decoration: none;
+}
+
+.meetingLink:hover { text-decoration: underline; }
+
+.copyBtn {
+    align-self: flex-start;
+    padding: 0.35rem 0.875rem;
+    background: transparent;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--text-h);
+    cursor: pointer;
+    font-family: inherit;
+    transition: border-color 0.15s, background 0.15s;
+}
+
+.copyBtn:hover { border-color: var(--accent-border); background: var(--accent-bg); }
+
+.confirmBtn {
+    padding: 0.85rem 2rem;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    box-shadow: 0 4px 16px rgba(124, 58, 237, 0.3);
+    transition: opacity 0.15s;
+}
+
+.confirmBtn:hover { opacity: 0.9; }
+
 /* ── Pay button ──────────────────────────────────────── */
 
 .payBtn {
