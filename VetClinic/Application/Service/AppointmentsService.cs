@@ -27,6 +27,23 @@ public class AppointmentsService : IAppointmentService
         return new DiscountInfoDto(discount.PromoCode, discount.Percentage);
     }
 
+    public async Task<Guid> CancelAppointmentAsync(Guid appointmentId)
+    {
+        var appointment = await _context.Appointments.FirstOrDefaultAsync(a => a.Id == appointmentId)
+                          ?? throw new KeyNotFoundException($"Aoppointment with id {appointmentId} not found.");
+
+        bool hasTimeToCancel = appointment.StartDate > DateTime.Now;
+
+        if (!hasTimeToCancel)
+        {
+            throw new InvalidOperationException("Can not cancel already started apppointment");
+        }
+
+        appointment.TransitionTo(AppointmentStatus.Cancelled);
+        _context.SaveChangesAsync();
+        return appointment.Id;
+    }
+
     public async Task<ScheduledAppointmentResponseDto> ScheduleOnlineAsync(OnlineAppointmentRequestDto dto)
     {
         var vet = await _context.Veterinarians
@@ -220,5 +237,19 @@ public class AppointmentsService : IAppointmentService
             .ToListAsync();
 
         return appointments.Select(AppointmentMapper.ToResponseDto).ToList();
+    }
+
+    public async Task DeleteAppointmentAsync(Guid appointmentId, Guid customerId)
+    {
+        var appointment = await _context.Appointments
+            .Include(a => a.Treatment)
+            .FirstOrDefaultAsync(a => a.Id == appointmentId && a.CustomerId == customerId)
+            ?? throw new KeyNotFoundException("Appointment not found.");
+
+        if (appointment.Treatment != null)
+            _context.Treatments.Remove(appointment.Treatment);
+
+        _context.Appointments.Remove(appointment);
+        await _context.SaveChangesAsync();
     }
 }

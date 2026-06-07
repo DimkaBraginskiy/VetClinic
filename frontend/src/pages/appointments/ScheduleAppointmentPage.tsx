@@ -1,31 +1,25 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import AppLayout from '../components/AppLayout'
-import { getAnimals, getLoyaltyPoints } from '../api/customer'
-import { getClinics } from '../api/clinics'
-import { getAvailableVets, validateDiscount, bookAppointment } from '../api/appointment'
-import { getCustomerId } from '../api/auth'
-import type { Animal } from '../types/animal'
-import type { ClinicOption } from '../types/clinic'
-import type { VetAvailability } from '../types/appointment'
+import AppLayout from '../../components/AppLayout'
+import { getAnimals, getLoyaltyPoints } from '../../api/customer'
+import { getClinics } from '../../api/clinics'
+import { getAvailableVets, validateDiscount, bookAppointment } from '../../api/appointment'
+import { getCustomerId } from '../../api/auth'
+import type { Animal } from '../../types/animal'
+import type { ClinicOption } from '../../types/clinic'
+import type { VetAvailability } from '../../types/appointment'
 import styles from './ScheduleAppointmentPage.module.css'
 
 type ApptType = 'Consultation' | 'Treatment'
 type ApptMode = 'Online' | 'Home' | 'Clinic'
 type StepKey  = 'animal' | 'type' | 'treatmentType' | 'mode' | 'clinic' | 'address' | 'day' | 'vet' | 'summary'
 
-const TREATMENT_TYPES = [
-    { value: 'Checkup',      icon: '🩺', label: 'Checkup' },
-    { value: 'Vaccine',      icon: '💉', label: 'Vaccine' },
-    { value: 'Surgery',      icon: '🔪', label: 'Surgery' },
-    { value: 'Eyesight',     icon: '👁',  label: 'Eyesight' },
-    { value: 'Chiropractic', icon: '🦴', label: 'Chiropractic' },
-]
+const TREATMENT_TYPES = ['Checkup', 'Vaccine', 'Surgery', 'Eyesight', 'Chiropractic']
 
 const ALL_MODES = {
-    Online: { value: 'Online' as ApptMode, icon: '💻', label: 'Online',    desc: 'Video call with a vet' },
-    Home:   { value: 'Home'   as ApptMode, icon: '🏠', label: 'At home',   desc: 'Vet visits your place' },
-    Clinic: { value: 'Clinic' as ApptMode, icon: '🏥', label: 'In clinic', desc: 'Visit the clinic' },
+    Online: { value: 'Online' as ApptMode, label: 'Online',    desc: 'Video call with a vet' },
+    Home:   { value: 'Home'   as ApptMode, label: 'At home',   desc: 'Vet visits your place' },
+    Clinic: { value: 'Clinic' as ApptMode, label: 'In clinic', desc: 'Visit the clinic' },
 }
 
 function getAvailableModes(type: ApptType, treatmentType: string | null) {
@@ -261,10 +255,6 @@ export default function ScheduleAppointmentPage() {
         }
     }
 
-    const animalSpeciesIcon = (species: string | null) =>
-        species === 'Dog' ? '🐕' : species === 'Cat' ? '🐈' : species === 'Rabbit' ? '🐇' :
-        species === 'Bird' ? '🐦' : '🐾'
-
     const selectedVet    = availableVets.find(v => v.veterinarianId === selectedVetId) ?? null
     const selectedAnimal = animals.find(a => a.id === animalId) ?? null
     const selectedClinic = clinics.find(c => c.id === clinicId) ?? null
@@ -287,84 +277,79 @@ export default function ScheduleAppointmentPage() {
 
                 {/* ── Animal selection ── */}
                 {currentStep === 'animal' && (
-                    <div className={styles.cardGrid}>
+                    <div className={styles.rowList}>
                         {animals.length === 0 && <p className={styles.empty}>No animals found. Add one first.</p>}
                         {animals.map(a => (
-                            <div key={a.id}
-                                 className={`${styles.animalCard} ${animalId === a.id ? styles.selected : ''}`}
+                            <button key={a.id}
+                                 className={`${styles.rowItem} ${animalId === a.id ? styles.selected : ''}`}
                                  onClick={() => setAnimalId(a.id)}
                             >
-                                <span className={styles.animalAvatar}>{animalSpeciesIcon(a.species)}</span>
-                                <span className={styles.animalName}>{a.name}</span>
-                                <span className={styles.animalMeta}>{[a.species, a.breed].filter(Boolean).join(' · ') || 'Unknown'}</span>
-                            </div>
+                                <span className={styles.rowItemMain}>{a.name}</span>
+                                <span className={styles.rowItemSub}>{[a.species, a.breed].filter(Boolean).join(' · ') || 'Unknown'}</span>
+                            </button>
                         ))}
                     </div>
                 )}
 
                 {/* ── Appointment type ── */}
                 {currentStep === 'type' && (
-                    <div className={styles.cardGrid}>
+                    <div className={styles.rowList}>
                         {([
-                            { value: 'Consultation', icon: '💬', desc: 'Talk to a vet online, at home or in clinic.' },
-                            { value: 'Treatment',    icon: '🩺', desc: 'A specific procedure performed by a specialist.' },
-                        ] as const).map(t => (
-                            <div key={t.value}
-                                 className={`${styles.bigCard} ${apptType === t.value ? styles.selected : ''}`}
+                            { value: 'Consultation' as const, desc: 'Talk to a vet online, at home or in clinic.' },
+                            { value: 'Treatment'    as const, desc: 'A specific procedure performed by a specialist.' },
+                        ]).map(t => (
+                            <button key={t.value}
+                                 className={`${styles.rowItem} ${apptType === t.value ? styles.selected : ''}`}
                                  onClick={() => { setApptType(t.value); setMode(null); setTreatmentType(null) }}
                             >
-                                <div className={styles.bigCardImage}>{t.icon}</div>
-                                <span className={styles.bigCardLabel}>{t.value}</span>
-                                <span className={styles.bigCardDesc}>{t.desc}</span>
-                            </div>
+                                <span className={styles.rowItemMain}>{t.value}</span>
+                                <span className={styles.rowItemSub}>{t.desc}</span>
+                            </button>
                         ))}
                     </div>
                 )}
 
                 {/* ── Treatment type ── */}
                 {currentStep === 'treatmentType' && (
-                    <div className={styles.cardGrid}>
+                    <div className={styles.rowList}>
                         {TREATMENT_TYPES.map(t => (
-                            <div key={t.value}
-                                 className={`${styles.optionCard} ${treatmentType === t.value ? styles.selected : ''}`}
-                                 onClick={() => setTreatmentType(t.value)}
+                            <button key={t}
+                                 className={`${styles.rowItem} ${treatmentType === t ? styles.selected : ''}`}
+                                 onClick={() => setTreatmentType(t)}
                             >
-                                <span className={styles.optionIcon}>{t.icon}</span>
-                                <span className={styles.optionLabel}>{t.label}</span>
-                            </div>
+                                <span className={styles.rowItemMain}>{t}</span>
+                            </button>
                         ))}
                     </div>
                 )}
 
                 {/* ── Mode ── */}
                 {currentStep === 'mode' && (
-                    <div className={styles.cardGrid}>
+                    <div className={styles.rowList}>
                         {availableModes.map(m => (
-                            <div key={m.value}
-                                 className={`${styles.optionCard} ${mode === m.value ? styles.selected : ''}`}
+                            <button key={m.value}
+                                 className={`${styles.rowItem} ${mode === m.value ? styles.selected : ''}`}
                                  onClick={() => { setMode(m.value); setClinicId(null); setSelectedDay(null) }}
                             >
-                                <span className={styles.optionIcon}>{m.icon}</span>
-                                <span className={styles.optionLabel}>{m.label}</span>
-                                <span className={styles.optionSub}>{m.desc}</span>
-                            </div>
+                                <span className={styles.rowItemMain}>{m.label}</span>
+                                <span className={styles.rowItemSub}>{m.desc}</span>
+                            </button>
                         ))}
                     </div>
                 )}
 
                 {/* ── Clinic selection ── */}
                 {currentStep === 'clinic' && (
-                    <div className={styles.cardGrid}>
+                    <div className={styles.rowList}>
                         {clinics.length === 0 && <p className={styles.empty}>No clinics available.</p>}
                         {clinics.map(c => (
-                            <div key={c.id}
-                                 className={`${styles.optionCard} ${clinicId === c.id ? styles.selected : ''}`}
+                            <button key={c.id}
+                                 className={`${styles.rowItem} ${clinicId === c.id ? styles.selected : ''}`}
                                  onClick={() => setClinicId(c.id)}
                             >
-                                <span className={styles.optionIcon}>🏥</span>
-                                <span className={styles.optionLabel}>{c.name}</span>
-                                <span className={styles.optionSub}>{c.city}, {c.street} {c.building}</span>
-                            </div>
+                                <span className={styles.rowItemMain}>{c.name}</span>
+                                <span className={styles.rowItemSub}>{c.city}, {c.street} {c.building}</span>
+                            </button>
                         ))}
                     </div>
                 )}
@@ -436,7 +421,6 @@ export default function ScheduleAppointmentPage() {
                         )}
                         {!vetsLoading && !vetsError && availableVets.length === 0 && (
                             <div className={styles.noVets}>
-                                <span className={styles.noVetsIcon}>😔</span>
                                 <p>No veterinarians are available on this day.</p>
                                 <p className={styles.noVetsSub}>Please go back and select a different day.</p>
                             </div>
@@ -446,9 +430,6 @@ export default function ScheduleAppointmentPage() {
                                  className={`${styles.vetCard} ${selectedVetId === vet.veterinarianId ? styles.vetCardSelected : ''}`}
                             >
                                 <div className={styles.vetHeader}>
-                                    <div className={styles.vetAvatar}>
-                                        {vet.type === 'Surgeon' ? '🔬' : '👨‍⚕️'}
-                                    </div>
                                     <div className={styles.vetInfo}>
                                         <span className={styles.vetName}>
                                             {vet.firstName} {vet.lastName}
@@ -518,17 +499,12 @@ export default function ScheduleAppointmentPage() {
                         <div className={styles.summarySection}>
                             <h3 className={styles.sectionTitle}>Veterinarian</h3>
                             {selectedVet ? (
-                                <div className={styles.vetSummaryRow}>
-                                    <span className={styles.vetSummaryAvatar}>
-                                        {selectedVet.type === 'Surgeon' ? '🔬' : '👨‍⚕️'}
-                                    </span>
-                                    <div className={styles.summaryRows} style={{ flex: 1 }}>
-                                        <SummaryRow label="Name"     value={`${selectedVet.firstName} ${selectedVet.lastName}`} />
-                                        <SummaryRow label="Type"     value={selectedVet.type} />
-                                        <SummaryRow label="ID"       value={selectedVet.clinicVetId} />
-                                        <SummaryRow label="Duration" value={`${selectedVet.appointmentDurationMinutes} min`} />
-                                        <SummaryRow label="Price"    value={selectedVet.offeringPrice != null ? `€${selectedVet.offeringPrice.toFixed(2)}` : 'Included'} />
-                                    </div>
+                                <div className={styles.summaryRows}>
+                                    <SummaryRow label="Name"     value={`${selectedVet.firstName} ${selectedVet.lastName}`} />
+                                    <SummaryRow label="Type"     value={selectedVet.type} />
+                                    <SummaryRow label="ID"       value={selectedVet.clinicVetId} />
+                                    <SummaryRow label="Duration" value={`${selectedVet.appointmentDurationMinutes} min`} />
+                                    <SummaryRow label="Price"    value={selectedVet.offeringPrice != null ? `€${selectedVet.offeringPrice.toFixed(2)}` : 'Included'} />
                                 </div>
                             ) : (
                                 <p className={styles.empty}>No veterinarian selected.</p>
@@ -634,14 +610,14 @@ export default function ScheduleAppointmentPage() {
 
             {currentStep !== 'summary' && (
                 <>
-                    <button className={styles.backBtn} onClick={goBack}>← Back</button>
+                    <button className={styles.backBtn} onClick={goBack}>Back</button>
                     <button className={styles.nextBtn} onClick={goNext} disabled={!canProceed()}>
                         {nextBtnLabel(currentStep)}
                     </button>
                 </>
             )}
             {currentStep === 'summary' && (
-                <button className={styles.backBtn} onClick={goBack}>← Back</button>
+                <button className={styles.backBtn} onClick={goBack}>Back</button>
             )}
         </AppLayout>
     )
@@ -673,8 +649,8 @@ function stepHeading(step: StepKey): string {
 
 function nextBtnLabel(step: StepKey): string {
     switch (step) {
-        case 'day':     return 'Find veterinarians →'
-        case 'vet':     return 'Review →'
-        default:        return 'Next →'
+        case 'day':     return 'Find veterinarians'
+        case 'vet':     return 'Review'
+        default:        return 'Next'
     }
 }

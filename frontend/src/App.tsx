@@ -2,10 +2,10 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Layout from './components/Layout.tsx'
 import LoginPage from './pages/LoginPage.tsx'
 import HomePage from './pages/HomePage.tsx'
-import AppointmentsPage from './pages/AppointmentsPage.tsx'
-import AnimalsPage from './pages/AnimalsPage.tsx'
-import AddAnimalPage from './pages/AddAnimalPage.tsx'
-import ScheduleAppointmentPage from './pages/ScheduleAppointmentPage.tsx'
+import AppointmentsPage from './pages/appointments/AppointmentsPage.tsx'
+import AnimalsPage from './pages/animals/AnimalsPage.tsx'
+import AddAnimalPage from './pages/animals/AddAnimalPage.tsx'
+import ScheduleAppointmentPage from './pages/appointments/ScheduleAppointmentPage.tsx'
 
 function App() {
   return (

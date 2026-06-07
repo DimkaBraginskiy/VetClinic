@@ -67,7 +67,16 @@
 
 .apptRow:last-child { border-bottom: none; }
 
-.apptIcon { font-size: 1.5rem; flex-shrink: 0; }
+c.apptMode {
+    flex-shrink: 0;
+    padding: 0.2rem 0.55rem;
+    border-radius: 8px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    background: rgba(124,58,237,0.1);
+    color: var(--accent);
+    white-space: nowrap;
+}
 
 .apptInfo {
     flex: 1;

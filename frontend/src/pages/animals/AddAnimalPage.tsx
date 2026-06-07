@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import AppLayout from '../components/AppLayout'
-import { addAnimal } from '../api/customer'
-import { getCustomerId } from '../api/auth'
+import AppLayout from '../../components/AppLayout'
+import { addAnimal } from '../../api/customer'
+import { getCustomerId } from '../../api/auth'
 import styles from './AddAnimalPage.module.css'
 
 const SPECIES = ['Dog', 'Cat', 'Rabbit', 'Bird', 'Other']

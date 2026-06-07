@@ -1,15 +1,15 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import AppLayout from '../components/AppLayout'
-import { getAppointments } from '../api/appointment'
-import { getCustomerId } from '../api/auth'
-import type { Appointment } from '../types/appointment'
+import AppLayout from '../../components/AppLayout'
+import { getAppointments, cancelAppointment } from '../../api/appointment'
+import { getCustomerId } from '../../api/auth'
+import type { Appointment } from '../../types/appointment'
 import styles from './AppointmentsPage.module.css'
 
-const MODE_ICON: Record<string, string> = {
-    Online: '💻',
-    Home:   '🏠',
-    Clinic: '🏥',
+const MODE_LABEL: Record<string, string> = {
+    Online: 'Online',
+    Home:   'At home',
+    Clinic: 'In clinic',
 }
 
 const STATUS_CLASS: Record<string, string> = {
@@ -37,14 +37,24 @@ function locationLine(appt: Appointment): string {
         return `At home · ${appt.homeAddress.street} ${appt.homeAddress.building}, ${appt.homeAddress.city}`
     if (appt.mode === 'Clinic' && appt.cabinetNumber != null)
         return `Cabinet ${appt.cabinetNumber}`
-    return appt.mode
+    return MODE_LABEL[appt.mode] ?? appt.mode
 }
 
-function ApptCard({ appt }: { appt: Appointment }) {
+function ApptCard({ appt, onDelete }: { appt: Appointment; onDelete: (id: string) => Promise<void> }) {
+    const [confirming, setConfirming] = useState(false)
+    const [deleting, setDeleting]     = useState(false)
+
+    const handleDelete = async () => {
+        setDeleting(true)
+        await onDelete(appt.id)
+        setDeleting(false)
+        setConfirming(false)
+    }
+
     return (
         <div className={`${styles.card} ${appt.status === 'Cancelled' ? styles.cardCancelled : ''}`}>
             <div className={styles.cardTop}>
-                <span className={styles.modeIcon}>{MODE_ICON[appt.mode] ?? '📋'}</span>
+                <span className={styles.modeBadge}>{MODE_LABEL[appt.mode] ?? appt.mode}</span>
                 <div className={styles.cardMain}>
                     <span className={styles.cardTitle}>{apptTitle(appt)}</span>
                     <span className={styles.cardMeta}>{appt.veterinarian.fullName} · {appt.veterinarian.type}</span>
@@ -57,6 +67,27 @@ function ApptCard({ appt }: { appt: Appointment }) {
             <div className={styles.cardBottom}>
                 <span className={styles.cardDate}>{fmtDateTime(appt.startDate)}</span>
                 <span className={styles.cardPrice}>€{appt.totalPrice.toFixed(2)}</span>
+
+                {(appt.status === 'Scheduled' || appt.status === 'InProgress') && (
+                    <div className={styles.deleteArea}>
+                        {!confirming && (
+                            <button className={styles.deleteBtn} onClick={() => setConfirming(true)}>
+                                Cancel
+                            </button>
+                        )}
+                        {confirming && (
+                            <div className={styles.confirm}>
+                                <span className={styles.confirmText}>Cancel this appointment?</span>
+                                <button className={styles.confirmYes} onClick={handleDelete} disabled={deleting}>
+                                    {deleting ? '…' : 'Yes'}
+                                </button>
+                                <button className={styles.confirmNo} onClick={() => setConfirming(false)} disabled={deleting}>
+                                    No
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                )}
             </div>
         </div>
     )
@@ -77,8 +108,22 @@ export default function AppointmentsPage() {
             .finally(() => setLoading(false))
     }, [])
 
-    const upcoming = appointments.filter(a => a.status === 'Scheduled' || a.status === 'InProgress')
-    const past     = appointments.filter(a => a.status === 'Completed'  || a.status === 'Cancelled')
+    const handleDelete = async (apptId: string) => {
+        const customerId = getCustomerId()
+        if (!customerId) return
+        await cancelAppointment(apptId)
+        setAppointments(prev => prev.filter(a => a.id !== apptId))
+    }
+
+    const upcoming  = appointments
+        .filter(a => a.status === 'Scheduled' || a.status === 'InProgress')
+        .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime())
+    const completed = appointments
+        .filter(a => a.status === 'Completed')
+        .sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())
+    const cancelled = appointments
+        .filter(a => a.status === 'Cancelled')
+        .sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())
 
     return (
         <AppLayout>
@@ -92,7 +137,6 @@ export default function AppointmentsPage() {
 
                 {!loading && !error && appointments.length === 0 && (
                     <div className={styles.emptyState}>
-                        <span className={styles.emptyIcon}>📅</span>
                         <span className={styles.emptyText}>You have no appointments yet.</span>
                     </div>
                 )}
@@ -101,16 +145,25 @@ export default function AppointmentsPage() {
                     <section className={styles.section}>
                         <h3 className={styles.sectionTitle}>Upcoming</h3>
                         <div className={styles.list}>
-                            {upcoming.map(a => <ApptCard key={a.id} appt={a} />)}
+                            {upcoming.map(a => <ApptCard key={a.id} appt={a} onDelete={handleDelete} />)}
                         </div>
                     </section>
                 )}
 
-                {past.length > 0 && (
+                {completed.length > 0 && (
                     <section className={styles.section}>
-                        <h3 className={styles.sectionTitle}>Past</h3>
+                        <h3 className={styles.sectionTitle}>Completed</h3>
                         <div className={styles.list}>
-                            {past.map(a => <ApptCard key={a.id} appt={a} />)}
+                            {completed.map(a => <ApptCard key={a.id} appt={a} onDelete={handleDelete} />)}
+                        </div>
+                    </section>
+                )}
+
+                {cancelled.length > 0 && (
+                    <section className={styles.section}>
+                        <h3 className={styles.sectionTitle}>Cancelled</h3>
+                        <div className={styles.list}>
+                            {cancelled.map(a => <ApptCard key={a.id} appt={a} onDelete={handleDelete} />)}
                         </div>
                     </section>
                 )}

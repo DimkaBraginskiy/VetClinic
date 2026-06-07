@@ -65,12 +65,34 @@ public class AppointmentsController : ControllerBase
         catch (KeyNotFoundException ex) { return NotFound(ex.Message); }
     }
 
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> DeleteAppointment(Guid id, [FromQuery] Guid customerId)
+    {
+        try
+        {
+            await _appointmentsService.DeleteAppointmentAsync(id, customerId);
+            return NoContent();
+        }
+        catch (KeyNotFoundException ex) { return NotFound(ex.Message); }
+    }
+
     [HttpGet("validate-discount")]
     public async Task<IActionResult> ValidateDiscountAsync([FromQuery] string code)
     {
         try
         {
             var result = await _appointmentsService.ValidateDiscountAsync(code);
+            return Ok(result);
+        }
+        catch (KeyNotFoundException ex) { return NotFound(ex.Message); }
+    }
+
+    [HttpPut("cancel/{id:guid}")]
+    public async Task<IActionResult> CancelAppointmentAsync(Guid id)
+    {
+        try
+        {
+            var result = await _appointmentsService.CancelAppointmentAsync(id);
             return Ok(result);
         }
         catch (KeyNotFoundException ex) { return NotFound(ex.Message); }

@@ -51,7 +51,18 @@
     gap: 0.875rem;
 }
 
-.modeIcon { font-size: 1.75rem; flex-shrink: 0; line-height: 1; margin-top: 0.1rem; }
+.modeBadge {
+    flex-shrink: 0;
+    padding: 0.2rem 0.55rem;
+    border-radius: 8px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    background: rgba(124,58,237,0.1);
+    color: var(--accent);
+    align-self: flex-start;
+    margin-top: 0.15rem;
+    white-space: nowrap;
+}
 
 .cardMain {
     flex: 1;
@@ -89,7 +100,7 @@
 .statusScheduled  { background: rgba(124,58,237,0.12);  color: #6d28d9; }
 .statusInProgress { background: rgba(245,158,11,0.15);  color: #b45309; }
 .statusCompleted  { background: rgba(16,185,129,0.12);  color: #065f46; }
-.statusCancelled  { background: rgba(107,114,128,0.15); color: #6b7280; }
+.statusCancelled  { background: rgba(107,114,128,0.15); color: #d82b4c; }
 
 /* ── Empty / loading states ──────────────────────────── */
 
@@ -104,10 +115,47 @@
     padding: 3rem 0;
 }
 
-.emptyIcon { font-size: 2.5rem; }
-.emptyText { font-size: 1rem; }
+.emptyText { font-size: 1rem; color: var(--text); }
 .hint      { color: var(--text); font-size: 0.9rem; }
 .errorMsg  { color: #dc2626; font-size: 0.9rem; }
+
+/* ── Delete / cancel actions ─────────────────────────── */
+
+.deleteArea { margin-left: auto; }
+
+.deleteBtn {
+    background: transparent;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--text);
+    padding: 0.25rem 0.6rem;
+    border-radius: 6px;
+    font-family: inherit;
+    transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+.deleteBtn:hover { border-color: #dc2626; color: #dc2626; background: rgba(220,38,38,0.06); }
+
+.confirm { display: flex; align-items: center; gap: 0.4rem; }
+
+.confirmText { font-size: 0.78rem; color: var(--text); white-space: nowrap; }
+
+.confirmYes, .confirmNo {
+    padding: 0.25rem 0.55rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    transition: opacity 0.15s;
+}
+.confirmYes          { background: #dc2626; color: #fff; }
+.confirmYes:hover    { opacity: 0.85; }
+.confirmYes:disabled { opacity: 0.5; cursor: not-allowed; }
+.confirmNo           { background: rgba(0,0,0,0.06); color: var(--text-h); }
+.confirmNo:hover     { background: rgba(0,0,0,0.1); }
 
 /* ── FAB ─────────────────────────────────────────────── */
 

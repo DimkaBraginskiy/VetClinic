@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import AppLayout from '../components/AppLayout'
-import AnimalCard from '../components/AnimalCard'
-import { getAnimals, deleteAnimal } from '../api/customer'
-import { getCustomerId } from '../api/auth'
-import type { Animal } from '../types/animal'
+import AppLayout from '../../components/AppLayout'
+import AnimalCard from '../../components/AnimalCard'
+import { getAnimals, deleteAnimal } from '../../api/customer'
+import { getCustomerId } from '../../api/auth'
+import type { Animal } from '../../types/animal'
 import styles from './AnimalsPage.module.css'
 
 export default function AnimalsPage() {

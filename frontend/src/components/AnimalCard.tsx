@@ -20,12 +20,10 @@ export default function AnimalCard({ animal, onDelete }: Props) {
 
     return (
         <div className={styles.card}>
-            <div className={styles.avatar}>🐾</div>
-
             <div className={styles.info}>
                 <span className={styles.name}>{animal.name}</span>
                 <span className={styles.meta}>
-                    {[animal.species, animal.breed].filter(Boolean).join(' · ')}
+                    {[animal.species, animal.breed].filter(Boolean).join(' · ') || 'Unknown'}
                 </span>
                 {animal.weight != null && (
                     <span className={styles.weight}>{animal.weight} kg</span>
@@ -37,9 +35,8 @@ export default function AnimalCard({ animal, onDelete }: Props) {
                     <button
                         className={styles.deleteBtn}
                         onClick={() => setConfirming(true)}
-                        title="Delete"
                     >
-                        🗑
+                        Delete
                     </button>
                 )}
 

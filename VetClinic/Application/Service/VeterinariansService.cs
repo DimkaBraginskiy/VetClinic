@@ -158,6 +158,10 @@ public class VeterinariansService : IVeterinariansService
 
             if (slots.Count == 0) continue;
 
+            // For consultations (no specific treatment), fall back to the vet's cheapest offering price
+            var resolvedPrice = offering?.Price
+                ?? vet.TreatmentOfferings.OrderBy(o => o.Price).FirstOrDefault()?.Price;
+
             result.Add(new VeterinarianDatesResponseDto(
                 vet.Id,
                 vet.FirstName,
@@ -166,7 +170,7 @@ public class VeterinariansService : IVeterinariansService
                 vet.Type.ToString(),
                 vet.ClinicVetId,
                 durationMinutes,
-                offering?.Price,
+                resolvedPrice,
                 offering?.Type.ToString(),
                 slots
             ));

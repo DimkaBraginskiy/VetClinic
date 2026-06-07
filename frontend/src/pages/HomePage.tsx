@@ -7,10 +7,10 @@ import { getCustomerId } from '../api/auth'
 import type { Appointment } from '../types/appointment'
 import styles from './HomePage.module.css'
 
-const MODE_ICON: Record<string, string> = {
-    Online: '💻',
-    Home:   '🏠',
-    Clinic: '🏥',
+const MODE_LABEL: Record<string, string> = {
+    Online: 'Online',
+    Home:   'At home',
+    Clinic: 'In clinic',
 }
 
 function fmtDateTime(iso: string) {
@@ -82,7 +82,7 @@ export default function HomePage() {
 
                 {upcoming.map(appt => (
                     <div key={appt.id} className={styles.apptRow}>
-                        <span className={styles.apptIcon}>{MODE_ICON[appt.mode] ?? '📋'}</span>
+                        <span className={styles.apptMode}>{MODE_LABEL[appt.mode] ?? appt.mode}</span>
                         <div className={styles.apptInfo}>
                             <span className={styles.apptTitle}>{apptTitle(appt)}</span>
                             <span className={styles.apptMeta}>

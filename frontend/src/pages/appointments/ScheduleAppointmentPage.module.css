@@ -1,4 +1,4 @@
-/* ── Outer wrapper: full height, content centred ─────── */
+/* ── Outer wrapper ───────────────────────────────────── */
 
 .page {
     flex: 1;
@@ -6,7 +6,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 2rem 1rem 6rem; /* bottom pad for fixed nav */
+    padding: 2rem 1rem 6rem;
     min-height: calc(100vh - 120px);
 }
 
@@ -32,97 +32,38 @@
     margin: 0.3rem 0 0;
 }
 
-/* ── Generic card grid ───────────────────────────────── */
+/* ── Compact row list (animal / type / mode / clinic / treatment) */
 
-.cardGrid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1.5rem;
-    width: 100%;
-    max-width: 860px;
-}
-
-/* ── Big square type cards (step 1 & 2) ─────────────── */
-
-.bigCard {
+.rowList {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 0.875rem;
-    padding: 2.5rem 1.5rem;
+    gap: 0.5rem;
+    width: 100%;
+    max-width: 480px;
+}
+
+.rowItem {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    padding: 0.875rem 1.25rem;
     background: var(--glass-bg);
     backdrop-filter: var(--glass-blur);
     -webkit-backdrop-filter: var(--glass-blur);
     border: 2px solid var(--border);
-    border-radius: 18px;
-    cursor: pointer;
-    transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
-}
-
-.bigCard:hover              { border-color: var(--accent-border); box-shadow: var(--shadow); }
-.bigCard.selected           { border-color: var(--accent); background: var(--accent-bg); }
-
-.bigCardImage {
-    width: 100%;
-    aspect-ratio: 1;
     border-radius: 12px;
-    background: rgba(255,255,255,0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 5rem;
-}
-
-.bigCardLabel { font-size: 1rem; font-weight: 600; color: var(--text-h); }
-.bigCardDesc  { font-size: 0.78rem; color: var(--text); text-align: center; line-height: 1.4; }
-
-/* ── Smaller option cards (mode, treatment type, clinics) */
-
-.optionCard {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 2rem 1rem;
-    background: var(--glass-bg);
-    backdrop-filter: var(--glass-blur);
-    -webkit-backdrop-filter: var(--glass-blur);
-    border: 2px solid var(--border);
-    border-radius: 14px;
     cursor: pointer;
+    font-family: inherit;
+    text-align: left;
     transition: border-color 0.15s, background 0.15s;
+    width: 100%;
 }
 
-.optionCard:hover    { border-color: var(--accent-border); }
-.optionCard.selected { border-color: var(--accent); background: var(--accent-bg); }
+.rowItem:hover    { border-color: var(--accent-border); }
+.rowItem.selected { border-color: var(--accent); background: var(--accent-bg); }
 
-.optionIcon  { font-size: 3rem; }
-.optionLabel { font-size: 0.88rem; font-weight: 600; color: var(--text-h); }
-.optionSub   { font-size: 0.75rem; color: var(--text); text-align: center; }
-
-/* ── Animal cards ────────────────────────────────────── */
-
-.animalCard {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.625rem;
-    padding: 2rem 1rem;
-    background: var(--glass-bg);
-    backdrop-filter: var(--glass-blur);
-    -webkit-backdrop-filter: var(--glass-blur);
-    border: 2px solid var(--border);
-    border-radius: 14px;
-    cursor: pointer;
-    transition: border-color 0.15s, background 0.15s;
-}
-
-.animalCard:hover    { border-color: var(--accent-border); }
-.animalCard.selected { border-color: var(--accent); background: var(--accent-bg); }
-
-.animalAvatar { font-size: 3.5rem; }
-.animalName   { font-size: 0.95rem; font-weight: 600; color: var(--text-h); }
-.animalMeta   { font-size: 0.75rem; color: var(--text); }
+.rowItemMain { font-size: 0.95rem; font-weight: 600; color: var(--text-h); }
+.rowItemSub  { font-size: 0.78rem; color: var(--text); }
 
 /* ── Day grid ────────────────────────────────────────── */
 
@@ -205,7 +146,7 @@
 .backBtn {
     position: fixed;
     bottom: 2rem;
-    left: calc(48px + 1.5rem); /* sidebar width + gap */
+    left: calc(48px + 1.5rem);
     padding: 0.7rem 1.4rem;
     background: rgba(255,255,255,0.7);
     border: 1px solid var(--border);
@@ -216,7 +157,7 @@
     cursor: pointer;
     backdrop-filter: var(--glass-blur);
     transition: background 0.15s;
-    z-index: 200; /* above sidebar slot (z-index: 100) */
+    z-index: 200;
 }
 
 .backBtn:hover { background: rgba(255,255,255,0.95); }
@@ -241,15 +182,10 @@
 .nextBtn:hover    { opacity: 0.88; }
 .nextBtn:disabled { opacity: 0.35; cursor: not-allowed; box-shadow: none; }
 
-.empty { color: var(--text); font-size: 0.9rem; }
+.empty    { color: var(--text); font-size: 0.9rem; }
+.errorMsg { color: #dc2626; font-size: 0.9rem; text-align: center; }
 
-.errorMsg {
-    color: #dc2626;
-    font-size: 0.9rem;
-    text-align: center;
-}
-
-/* ── Vet selection list ───────────────────────────────── */
+/* ── Vet list ─────────────────────────────────────────── */
 
 .vetList {
     display: flex;
@@ -269,23 +205,12 @@
     transition: border-color 0.15s, background 0.15s;
 }
 
-.vetCard:hover       { border-color: var(--accent-border); }
-.vetCardSelected     { border-color: var(--accent) !important; background: var(--accent-bg) !important; }
+.vetCard:hover   { border-color: var(--accent-border); }
+.vetCardSelected { border-color: var(--accent) !important; background: var(--accent-bg) !important; }
 
-.vetHeader {
-    display: flex;
-    align-items: flex-start;
-    gap: 1rem;
-    margin-bottom: 1rem;
-}
+.vetHeader { margin-bottom: 1rem; }
 
-.vetAvatar { font-size: 2.5rem; flex-shrink: 0; line-height: 1; }
-
-.vetInfo {
-    display: flex;
-    flex-direction: column;
-    gap: 0.2rem;
-}
+.vetInfo { display: flex; flex-direction: column; gap: 0.2rem; }
 
 .vetName     { font-size: 1.05rem; font-weight: 700; color: var(--text-h); }
 .vetType     { font-size: 0.78rem; color: var(--text); }
@@ -293,11 +218,7 @@
 
 /* ── Time slot buttons ───────────────────────────────── */
 
-.slotGrid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-}
+.slotGrid { display: flex; flex-wrap: wrap; gap: 0.5rem; }
 
 .slotBtn {
     padding: 0.45rem 0.875rem;
@@ -312,7 +233,7 @@
     transition: border-color 0.15s, background 0.15s, color 0.15s;
 }
 
-.slotBtn:hover  { border-color: var(--accent-border); background: var(--accent-bg); }
+.slotBtn:hover { border-color: var(--accent-border); background: var(--accent-bg); }
 
 .slotSelected {
     border-color: var(--accent) !important;
@@ -332,8 +253,7 @@
     text-align: center;
 }
 
-.noVetsIcon { font-size: 3rem; }
-.noVetsSub  { font-size: 0.82rem; opacity: 0.7; }
+.noVetsSub { font-size: 0.82rem; opacity: 0.7; }
 
 /* ── Summary full-page layout ────────────────────────── */
 
@@ -382,16 +302,6 @@
 
 .summaryRowLabel { font-size: 0.8rem; font-weight: 600; color: var(--text); }
 .summaryRowValue { font-size: 0.88rem; color: var(--text-h); font-weight: 500; }
-
-/* ── Vet summary row ─────────────────────────────────── */
-
-.vetSummaryRow {
-    display: flex;
-    align-items: flex-start;
-    gap: 1rem;
-}
-
-.vetSummaryAvatar { font-size: 2.5rem; flex-shrink: 0; line-height: 1; padding-top: 0.25rem; }
 
 /* ── Promo code ──────────────────────────────────────── */
 
@@ -460,10 +370,7 @@
     margin-bottom: 1.25rem;
 }
 
-.loyaltyLabel {
-    font-size: 0.88rem;
-    color: var(--text);
-}
+.loyaltyLabel { font-size: 0.88rem; color: var(--text); }
 
 .loyaltyInputRow {
     display: flex;

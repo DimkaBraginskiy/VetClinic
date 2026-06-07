@@ -30,6 +30,13 @@ export async function getAppointments(customerId: string): Promise<Appointment[]
     return res.json()
 }
 
+export async function cancelAppointment(appointmentId: string): Promise<void> {
+    const res = await fetch(`${BASE}/appointments/cancel/${appointmentId}`, {
+        method: 'PUT',
+    })
+    if (!res.ok) throw new Error('Failed to cancel appointment')
+}
+
 export async function bookAppointment(mode: string, dto: Record<string, unknown>): Promise<void> {
     const endpoint = mode === 'Online' ? 'online' : mode === 'Home' ? 'home' : 'clinic'
     const res = await fetch(`${BASE}/appointments/${endpoint}`, {
