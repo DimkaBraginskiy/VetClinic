@@ -85,13 +85,13 @@ public class AppDbContext : DbContext
             .HasMany(v => v.Treatments)
             .WithOne(t => t.Veterinarian)
             .HasForeignKey(t => t.VeterinarianId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Cascade);
 
         model.Entity<Veterinarian>()
             .HasMany(v => v.Appointments)
             .WithOne(a => a.Veterinarian)
             .HasForeignKey(a => a.VeterinarianId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Cascade);
 
         model.Entity<Clinic>()
             .HasMany<Veterinarian>("_veterinarians")

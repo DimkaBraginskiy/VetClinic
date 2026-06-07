@@ -36,6 +36,14 @@ public class ClinicsService : IClinicService
 
     public async Task<Guid> CreateClinicAsync(CreateClinicRequestDto dto)
     {
+        var addressTaken = await _context.Clinics.AnyAsync(c =>
+            c.Address.Country  == dto.Country  &&
+            c.Address.City     == dto.City     &&
+            c.Address.Street   == dto.Street   &&
+            c.Address.Building == dto.BuildingNumber);
+        if (addressTaken)
+            throw new InvalidOperationException("A clinic at this address already exists.");
+
         var address = new Address(
             dto.Country,
             dto.City,
@@ -54,8 +62,15 @@ public class ClinicsService : IClinicService
 
     public async Task<Guid> AddCabinetAsync(Guid clinicId, AddCabinetRequestDto dto)
     {
-        var clinic = await _context.Clinics.FindAsync(clinicId)
+        var clinic = await _context.Clinics
+            .Include(c => c.Cabinets)
+            .FirstOrDefaultAsync(c => c.Id == clinicId)
             ?? throw new KeyNotFoundException("Clinic not found.");
+
+        var cabinetExists = await _context.Cabinets.AnyAsync(c =>
+            c.ClinicId == clinicId && c.Floor == dto.Floor && c.Number == dto.Number);
+        if (cabinetExists)
+            throw new InvalidOperationException($"Cabinet {dto.Number} on floor {dto.Floor} already exists in this clinic.");
 
         var cabinet = clinic.AddCabinet(dto.Floor, dto.Number);
 

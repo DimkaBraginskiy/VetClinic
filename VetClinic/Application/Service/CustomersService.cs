@@ -19,6 +19,11 @@ public class CustomersService : ICustomersService
 
     public async Task<Guid> CreateCustomerAsync(CreateCustomerRequestDto dto)
     {
+        var emailExists = await _context.Customers.AnyAsync(c => c.Email == dto.Email)
+                       || await _context.Veterinarians.AnyAsync(v => v.Email == dto.Email);
+        if (emailExists)
+            throw new InvalidOperationException($"A person with email '{dto.Email}' already exists.");
+
         var customer = new Customer(
             dto.FirstName,
             dto.LastName,

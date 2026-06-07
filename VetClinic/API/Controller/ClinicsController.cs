@@ -31,7 +31,8 @@ public class ClinicsController : ControllerBase
             var id = await _clinicService.CreateClinicAsync(dto);
             return CreatedAtAction(nameof(CreateClinic), new { id }, new { id });
         }
-        catch (ArgumentException ex) { return BadRequest(ex.Message); }
+        catch (InvalidOperationException ex) { return Conflict(ex.Message); }
+        catch (ArgumentException ex)         { return BadRequest(ex.Message); }
     }
 
     [HttpPost("{clinicId}/cabinets")]

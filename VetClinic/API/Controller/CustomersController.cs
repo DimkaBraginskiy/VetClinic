@@ -23,6 +23,7 @@ public class CustomersController : ControllerBase
             var id = await _customersService.CreateCustomerAsync(dto);
             return CreatedAtAction(nameof(CreateCustomer), new { id }, new { id });
         }
+        catch (InvalidOperationException ex) { return Conflict(ex.Message); }
         catch (ArgumentException ex)         { return BadRequest(ex.Message); }
     }
 
