@@ -49,6 +49,17 @@ public class CustomersController : ControllerBase
         catch (KeyNotFoundException ex) { return NotFound(ex.Message); }
     }
 
+    [HttpGet("{customerId}/animals/{animalId:guid}")]
+    public async Task<IActionResult> GetAnimalById(Guid customerId, Guid animalId)
+    {
+        try
+        {
+            var result = await _customersService.GetAnimalByIdAsync(customerId, animalId);
+            return Ok(result);
+        }
+        catch (KeyNotFoundException ex) { return NotFound(ex.Message); }
+    }
+
     [HttpGet("{customerId}/animals")]
     public async Task<IActionResult> GetCustomerAnimals(Guid customerId)
     {

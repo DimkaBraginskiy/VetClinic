@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import type { Animal } from '../types/animal'
 import styles from './AnimalCard.module.css'
 
@@ -8,6 +9,7 @@ interface Props {
 }
 
 export default function AnimalCard({ animal, onDelete }: Props) {
+    const navigate = useNavigate()
     const [confirming, setConfirming] = useState(false)
     const [deleting, setDeleting]     = useState(false)
 
@@ -31,6 +33,13 @@ export default function AnimalCard({ animal, onDelete }: Props) {
             </div>
 
             <div className={styles.actions}>
+                <button
+                    className={styles.detailsBtn}
+                    onClick={() => navigate(`/animals/${animal.id}`)}
+                >
+                    Details
+                </button>
+
                 {!confirming && (
                     <button
                         className={styles.deleteBtn}

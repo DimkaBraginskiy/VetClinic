@@ -12,4 +12,5 @@ public interface ICustomersService
     public Task        DeleteCustomerAnimalAsync(Guid customerId, Guid animalId);
     public Task<int>     GetAppointmentCountAsync(Guid customerId);
     public Task<decimal> GetLoyaltyPointsAsync(Guid customerId);
+    public Task<CustomerAnimalResponseDto> GetAnimalByIdAsync(Guid customerId, Guid animalId);
 }

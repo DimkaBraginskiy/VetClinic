@@ -299,9 +299,16 @@ export default function ScheduleAppointmentPage() {
                                 </div>
                             </>
                         ) : (
-                            <p className={styles.confirmSub}>
-                                Your appointment has been scheduled. Bring your buddy to us!! :))
-                            </p>
+                            <div style={{
+                                border: '2px solid #28a745',
+                                background: '#eafaf0',
+                                padding: '16px',
+                                borderRadius: '8px'
+                            }}>
+                                <p className={styles.confirmSub}>
+                                    Your appointment has been scheduled. Bring your buddy to us!! :))
+                                </p>
+                            </div>
                         )}
 
                         <button className={styles.confirmBtn} onClick={() => navigate('/appointments')}>

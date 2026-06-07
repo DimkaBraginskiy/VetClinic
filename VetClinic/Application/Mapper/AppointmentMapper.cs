@@ -5,6 +5,18 @@ namespace VetClinic.Application.Mapper;
 
 public static class AppointmentMapper
 {
+    public static AppointmentMimimalResponseDto ToMinimalDto(Appointment appt) => new()
+    {
+        Id               = appt.Id,
+        Status           = appt.Status.ToString(),
+        Mode             = appt.Mode.ToString(),
+        StartDate        = appt.StartDate,
+        TotalPrice       = appt.GetTotalPrice(),
+        AnimalName       = appt.Animals.FirstOrDefault()?.Name ?? "Unknown",
+        VeterinarianName = appt.Veterinarian.GetFullName(),
+        TreatmentType    = appt.Treatment?.Type.ToString()
+    };
+
     public static ScheduledAppointmentResponseDto ToResponseDto(Appointment appt) =>
         new()
         {

@@ -1,5 +1,6 @@
 import type { Animal } from '../types/animal'
 
+
 const BASE = 'http://localhost:5258/api'
 
 export async function getLoyaltyPoints(customerId: string): Promise<number> {
@@ -27,6 +28,12 @@ export async function deleteAnimal(customerId: string, animalId: string): Promis
         method: 'DELETE',
     })
     if (!res.ok) throw new Error('Failed to delete animal.')
+}
+
+export async function getAnimalById(customerId: string, animalId: string): Promise<Animal> {
+    const res = await fetch(`${BASE}/customers/${customerId}/animals/${animalId}`)
+    if (!res.ok) throw new Error('Failed to fetch animal.')
+    return res.json()
 }
 
 export async function addAnimal(

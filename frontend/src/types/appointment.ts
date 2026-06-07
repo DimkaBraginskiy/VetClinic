@@ -1,3 +1,14 @@
+export interface AppointmentMinimal {
+    id: string
+    status: string
+    mode: string
+    startDate: string
+    totalPrice: number
+    animalName: string
+    veterinarianName: string
+    treatmentType: string | null
+}
+
 export interface VetAvailability {
     veterinarianId: string
     firstName: string

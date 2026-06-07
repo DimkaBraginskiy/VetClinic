@@ -1,0 +1,101 @@
+.page {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    max-width: 640px;
+    width: 100%;
+    margin: 0 auto;
+    padding-bottom: 2rem;
+}
+
+.pageHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.backBtn {
+    background: none;
+    border: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text);
+    cursor: pointer;
+    padding: 0;
+    font-family: inherit;
+}
+.backBtn:hover { color: var(--text-h); }
+
+.title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--text-h);
+    margin: 0;
+}
+
+/* ── Status badge ──────────────────────────────────────── */
+
+.statusBadge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.statusScheduled  { background: rgba(124,58,237,0.12);  color: #6d28d9; }
+.statusInProgress { background: rgba(245,158,11,0.15);  color: #b45309; }
+.statusCompleted  { background: rgba(16,185,129,0.12);  color: #065f46; }
+.statusCancelled  { background: rgba(107,114,128,0.15); color: #d82b4c; }
+
+/* ── Detail section ────────────────────────────────────── */
+
+.section {
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.sectionTitle {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+    margin: 0 0 0.75rem;
+}
+
+.row {
+    display: grid;
+    grid-template-columns: 9rem 1fr;
+    gap: 0.5rem;
+    padding: 0.45rem 0;
+    border-bottom: 1px solid var(--border);
+    align-items: start;
+}
+
+.row:last-child { border-bottom: none; }
+
+.rowLabel { font-size: 0.8rem; font-weight: 600; color: var(--text); }
+.rowValue { font-size: 0.88rem; color: var(--text-h); font-weight: 500; }
+
+.rowTotal .rowLabel,
+.rowTotal .rowValue { font-size: 1rem; font-weight: 700; color: var(--text-h); }
+
+.link {
+    font-size: 0.85rem;
+    color: var(--accent);
+    word-break: break-all;
+    text-decoration: none;
+}
+.link:hover { text-decoration: underline; }
+
+.hint     { color: var(--text); font-size: 0.9rem; padding: 1rem; }
+.errorMsg { color: #dc2626; font-size: 0.9rem; padding: 1rem; }

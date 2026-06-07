@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import AppLayout from '../../components/AppLayout'
 import { getAppointments, cancelAppointment } from '../../api/appointment'
 import { getCustomerId } from '../../api/auth'
-import type { Appointment } from '../../types/appointment'
+import type { AppointmentMinimal } from '../../types/appointment'
 import styles from './AppointmentsPage.module.css'
 
 const MODE_LABEL: Record<string, string> = {
@@ -26,39 +26,29 @@ function fmtDateTime(iso: string) {
         + d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })
 }
 
-function apptTitle(appt: Appointment): string {
-    const animal = appt.animals[0]?.name ?? 'Unknown'
-    return appt.treatment ? `${appt.treatment.type} for ${animal}` : `Consultation for ${animal}`
-}
-
-function locationLine(appt: Appointment): string {
-    if (appt.mode === 'Online') return 'Video call'
-    if (appt.mode === 'Home' && appt.homeAddress)
-        return `At home · ${appt.homeAddress.street} ${appt.homeAddress.building}, ${appt.homeAddress.city}`
-    if (appt.mode === 'Clinic' && appt.cabinetNumber != null)
-        return `Cabinet ${appt.cabinetNumber}`
-    return MODE_LABEL[appt.mode] ?? appt.mode
-}
-
-function ApptCard({ appt, onDelete }: { appt: Appointment; onDelete: (id: string) => Promise<void> }) {
+function ApptCard({ appt, onCancel }: { appt: AppointmentMinimal; onCancel: (id: string) => Promise<void> }) {
+    const navigate = useNavigate()
     const [confirming, setConfirming] = useState(false)
-    const [deleting, setDeleting]     = useState(false)
+    const [cancelling, setCancelling] = useState(false)
 
-    const handleDelete = async () => {
-        setDeleting(true)
-        await onDelete(appt.id)
-        setDeleting(false)
+    const handleCancel = async () => {
+        setCancelling(true)
+        await onCancel(appt.id)
+        setCancelling(false)
         setConfirming(false)
     }
+
+    const title = appt.treatmentType
+        ? `${appt.treatmentType} for ${appt.animalName}`
+        : `Consultation for ${appt.animalName}`
 
     return (
         <div className={`${styles.card} ${appt.status === 'Cancelled' ? styles.cardCancelled : ''}`}>
             <div className={styles.cardTop}>
                 <span className={styles.modeBadge}>{MODE_LABEL[appt.mode] ?? appt.mode}</span>
                 <div className={styles.cardMain}>
-                    <span className={styles.cardTitle}>{apptTitle(appt)}</span>
-                    <span className={styles.cardMeta}>{appt.veterinarian.fullName} · {appt.veterinarian.type}</span>
-                    <span className={styles.cardMeta}>{locationLine(appt)}</span>
+                    <span className={styles.cardTitle}>{title}</span>
+                    <span className={styles.cardMeta}>{appt.veterinarianName}</span>
                 </div>
                 <span className={`${styles.statusBadge} ${STATUS_CLASS[appt.status] ?? ''}`}>
                     {appt.status}
@@ -68,26 +58,31 @@ function ApptCard({ appt, onDelete }: { appt: Appointment; onDelete: (id: string
                 <span className={styles.cardDate}>{fmtDateTime(appt.startDate)}</span>
                 <span className={styles.cardPrice}>€{appt.totalPrice.toFixed(2)}</span>
 
-                {(appt.status === 'Scheduled' || appt.status === 'InProgress') && (
-                    <div className={styles.deleteArea}>
-                        {!confirming && (
-                            <button className={styles.deleteBtn} onClick={() => setConfirming(true)}>
-                                Cancel
+                <div className={styles.cardActions}>
+                    <button
+                        className={styles.detailsBtn}
+                        onClick={() => navigate(`/appointments/${appt.id}`)}
+                    >
+                        See details
+                    </button>
+
+                    {(appt.status === 'Scheduled' || appt.status === 'InProgress') && !confirming && (
+                        <button className={styles.deleteBtn} onClick={() => setConfirming(true)}>
+                            Cancel
+                        </button>
+                    )}
+                    {confirming && (
+                        <div className={styles.confirm}>
+                            <span className={styles.confirmText}>Cancel?</span>
+                            <button className={styles.confirmYes} onClick={handleCancel} disabled={cancelling}>
+                                {cancelling ? '…' : 'Yes'}
                             </button>
-                        )}
-                        {confirming && (
-                            <div className={styles.confirm}>
-                                <span className={styles.confirmText}>Cancel this appointment?</span>
-                                <button className={styles.confirmYes} onClick={handleDelete} disabled={deleting}>
-                                    {deleting ? '…' : 'Yes'}
-                                </button>
-                                <button className={styles.confirmNo} onClick={() => setConfirming(false)} disabled={deleting}>
-                                    No
-                                </button>
-                            </div>
-                        )}
-                    </div>
-                )}
+                            <button className={styles.confirmNo} onClick={() => setConfirming(false)} disabled={cancelling}>
+                                No
+                            </button>
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     )
@@ -95,7 +90,7 @@ function ApptCard({ appt, onDelete }: { appt: Appointment; onDelete: (id: string
 
 export default function AppointmentsPage() {
     const navigate = useNavigate()
-    const [appointments, setAppointments] = useState<Appointment[]>([])
+    const [appointments, setAppointments] = useState<AppointmentMinimal[]>([])
     const [loading,      setLoading]      = useState(true)
     const [error,        setError]        = useState<string | null>(null)
 
@@ -108,11 +103,11 @@ export default function AppointmentsPage() {
             .finally(() => setLoading(false))
     }, [])
 
-    const handleDelete = async (apptId: string) => {
-        const customerId = getCustomerId()
-        if (!customerId) return
+    const handleCancel = async (apptId: string) => {
         await cancelAppointment(apptId)
-        setAppointments(prev => prev.filter(a => a.id !== apptId))
+        setAppointments(prev => prev.map(a =>
+            a.id === apptId ? { ...a, status: 'Cancelled' } : a
+        ))
     }
 
     const upcoming  = appointments
@@ -145,7 +140,7 @@ export default function AppointmentsPage() {
                     <section className={styles.section}>
                         <h3 className={styles.sectionTitle}>Upcoming</h3>
                         <div className={styles.list}>
-                            {upcoming.map(a => <ApptCard key={a.id} appt={a} onDelete={handleDelete} />)}
+                            {upcoming.map(a => <ApptCard key={a.id} appt={a} onCancel={handleCancel} />)}
                         </div>
                     </section>
                 )}
@@ -154,7 +149,7 @@ export default function AppointmentsPage() {
                     <section className={styles.section}>
                         <h3 className={styles.sectionTitle}>Completed</h3>
                         <div className={styles.list}>
-                            {completed.map(a => <ApptCard key={a.id} appt={a} onDelete={handleDelete} />)}
+                            {completed.map(a => <ApptCard key={a.id} appt={a} onCancel={handleCancel} />)}
                         </div>
                     </section>
                 )}
@@ -163,7 +158,7 @@ export default function AppointmentsPage() {
                     <section className={styles.section}>
                         <h3 className={styles.sectionTitle}>Cancelled</h3>
                         <div className={styles.list}>
-                            {cancelled.map(a => <ApptCard key={a.id} appt={a} onDelete={handleDelete} />)}
+                            {cancelled.map(a => <ApptCard key={a.id} appt={a} onCancel={handleCancel} />)}
                         </div>
                     </section>
                 )}

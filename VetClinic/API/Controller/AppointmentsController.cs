@@ -55,11 +55,22 @@ public class AppointmentsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetCustomerAppointments([FromQuery] Guid customerId)
+    public async Task<IActionResult> GetCustomerAppointments([FromQuery] Guid customerId, [FromQuery] Guid? animalId)
     {
         try
         {
-            var result = await _appointmentsService.GetCustomerAppointmentsAsync(customerId);
+            var result = await _appointmentsService.GetCustomerAppointmentsAsync(customerId, animalId);
+            return Ok(result);
+        }
+        catch (KeyNotFoundException ex) { return NotFound(ex.Message); }
+    }
+
+    [HttpGet("{id:guid}")]
+    public async Task<IActionResult> GetAppointmentById(Guid id, [FromQuery] Guid customerId)
+    {
+        try
+        {
+            var result = await _appointmentsService.GetAppointmentByIdAsync(id, customerId);
             return Ok(result);
         }
         catch (KeyNotFoundException ex) { return NotFound(ex.Message); }

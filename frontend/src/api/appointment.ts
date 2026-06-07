@@ -1,4 +1,4 @@
-import type { Appointment, VetAvailability } from '../types/appointment'
+import type { Appointment, AppointmentMinimal, VetAvailability } from '../types/appointment'
 
 const BASE = 'http://localhost:5258/api'
 
@@ -24,9 +24,17 @@ export async function validateDiscount(code: string): Promise<{ promoCode: strin
     return res.json()
 }
 
-export async function getAppointments(customerId: string): Promise<Appointment[]> {
-    const res = await fetch(`${BASE}/appointments?customerId=${customerId}`)
+export async function getAppointments(customerId: string, animalId?: string): Promise<AppointmentMinimal[]> {
+    const params = new URLSearchParams({ customerId })
+    if (animalId) params.set('animalId', animalId)
+    const res = await fetch(`${BASE}/appointments?${params}`)
     if (!res.ok) throw new Error('Failed to fetch appointments')
+    return res.json()
+}
+
+export async function getAppointmentById(id: string, customerId: string): Promise<Appointment> {
+    const res = await fetch(`${BASE}/appointments/${id}?customerId=${customerId}`)
+    if (!res.ok) throw new Error('Failed to fetch appointment')
     return res.json()
 }
 

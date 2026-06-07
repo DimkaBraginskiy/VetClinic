@@ -24,9 +24,23 @@
 .meta   { font-size: 0.82rem; color: var(--text); }
 .weight { font-size: 0.8rem;  color: var(--text); }
 
-/* ── Delete actions ──────────────────────────────────── */
+/* ── Actions ──────────────────────────────────────────── */
 
 .actions { display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0; }
+
+.detailsBtn {
+    background: transparent;
+    border: 1px solid var(--accent-border);
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--accent);
+    padding: 0.3rem 0.65rem;
+    border-radius: 6px;
+    font-family: inherit;
+    transition: background 0.15s;
+}
+.detailsBtn:hover { background: var(--accent-bg); }
 
 .deleteBtn {
     background: transparent;

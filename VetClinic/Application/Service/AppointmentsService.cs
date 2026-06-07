@@ -230,19 +230,39 @@ public class AppointmentsService : IAppointmentService
         return AppointmentMapper.ToResponseDto(appointment);
     }
 
-    public async Task<List<ScheduledAppointmentResponseDto>> GetCustomerAppointmentsAsync(Guid customerId)
+    public async Task<List<AppointmentMimimalResponseDto>> GetCustomerAppointmentsAsync(Guid customerId, Guid? animalId = null)
     {
-        var appointments = await _context.Appointments
+        var query = _context.Appointments
             .Where(a => a.CustomerId == customerId)
             .Include(a => a.Veterinarian)
             .Include(a => a.Animals)
             .Include(a => a.Treatment)
             .Include(a => a.Discounts)
-            .Include(a => a.Cabinet)
+            .AsQueryable();
+
+        if (animalId.HasValue)
+            query = query.Where(a => a.Animals.Any(animal => animal.Id == animalId.Value));
+
+        var appointments = await query
             .OrderByDescending(a => a.StartDate)
             .ToListAsync();
 
-        return appointments.Select(AppointmentMapper.ToResponseDto).ToList();
+        return appointments.Select(AppointmentMapper.ToMinimalDto).ToList();
+    }
+
+    public async Task<ScheduledAppointmentResponseDto> GetAppointmentByIdAsync(Guid appointmentId, Guid customerId)
+    {
+        var appointment = await _context.Appointments
+            .Where(a => a.Id == appointmentId && a.CustomerId == customerId)
+            .Include(a => a.Veterinarian)
+            .Include(a => a.Animals)
+            .Include(a => a.Treatment)
+            .Include(a => a.Discounts)
+            .Include(a => a.Cabinet)
+            .FirstOrDefaultAsync()
+            ?? throw new KeyNotFoundException("Appointment not found.");
+
+        return AppointmentMapper.ToResponseDto(appointment);
     }
 
     public async Task DeleteAppointmentAsync(Guid appointmentId, Guid customerId)

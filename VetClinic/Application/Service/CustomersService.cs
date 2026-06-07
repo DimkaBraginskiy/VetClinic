@@ -80,16 +80,34 @@ public class CustomersService : ICustomersService
             dtoResult.Add(
                     new CustomerAnimalResponseDto
                     {
-                        Id = animal.Id,
-                        Name = animal.Name,
-                        Weight = animal.Weight,
-                        Species = animal.Species.ToString(),
-                        Breed = animal.Breed
+                        Id          = animal.Id,
+                        Name        = animal.Name,
+                        DateOfBirth = animal.DateOfBirth,
+                        Weight      = animal.Weight,
+                        Species     = animal.Species?.ToString(),
+                        Breed       = animal.Breed
                     }
                 );
         }
         
         return dtoResult;
+    }
+
+    public async Task<CustomerAnimalResponseDto> GetAnimalByIdAsync(Guid customerId, Guid animalId)
+    {
+        var animal = await _context.Animals
+            .FirstOrDefaultAsync(a => a.Id == animalId && a.CustomerId == customerId)
+            ?? throw new KeyNotFoundException("Animal not found.");
+
+        return new CustomerAnimalResponseDto
+        {
+            Id          = animal.Id,
+            Name        = animal.Name,
+            DateOfBirth = animal.DateOfBirth,
+            Weight      = animal.Weight,
+            Species     = animal.Species?.ToString(),
+            Breed       = animal.Breed
+        };
     }
 
     public async Task<Guid> CreateCustomerAnimalAsync(CreatAnimalRequestDto dto, Guid customerId)

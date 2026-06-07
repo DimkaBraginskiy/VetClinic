@@ -119,9 +119,25 @@
 .hint      { color: var(--text); font-size: 0.9rem; }
 .errorMsg  { color: #dc2626; font-size: 0.9rem; }
 
-/* ── Delete / cancel actions ─────────────────────────── */
+/* ── Card actions ────────────────────────────────────── */
 
-.deleteArea { margin-left: auto; }
+.cardActions { display: flex; align-items: center; gap: 0.4rem; margin-left: auto; }
+
+.detailsBtn {
+    background: transparent;
+    border: 1px solid var(--accent-border);
+    cursor: pointer;
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--accent);
+    padding: 0.25rem 0.6rem;
+    border-radius: 6px;
+    font-family: inherit;
+    transition: background 0.15s;
+}
+.detailsBtn:hover { background: var(--accent-bg); }
+
+/* ── Delete / cancel actions ─────────────────────────── */
 
 .deleteBtn {
     background: transparent;
