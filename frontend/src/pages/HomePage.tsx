@@ -4,7 +4,7 @@ import AppLayout from '../components/AppLayout'
 import { getAnimals } from '../api/customer'
 import { getAppointments } from '../api/appointment'
 import { getCustomerId } from '../api/auth'
-import type { Appointment } from '../types/appointment'
+import type { AppointmentMinimal } from '../types/appointment'
 import styles from './HomePage.module.css'
 
 const MODE_LABEL: Record<string, string> = {
@@ -20,15 +20,16 @@ function fmtDateTime(iso: string) {
         + d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })
 }
 
-function apptTitle(appt: Appointment): string {
-    const animal = appt.animals[0]?.name ?? 'Unknown'
-    return appt.treatment ? `${appt.treatment.type} for ${animal}` : `Consultation for ${animal}`
+function apptTitle(appt: AppointmentMinimal): string {
+    return appt.treatmentType
+        ? `${appt.treatmentType} for ${appt.animalName}`
+        : `Consultation for ${appt.animalName}`
 }
 
 export default function HomePage() {
     const navigate = useNavigate()
     const [animalCount,  setAnimalCount]  = useState<number | null>(null)
-    const [appointments, setAppointments] = useState<Appointment[]>([])
+    const [appointments, setAppointments] = useState<AppointmentMinimal[]>([])
     const [apptLoading,  setApptLoading]  = useState(true)
 
     useEffect(() => {
@@ -86,7 +87,7 @@ export default function HomePage() {
                         <div className={styles.apptInfo}>
                             <span className={styles.apptTitle}>{apptTitle(appt)}</span>
                             <span className={styles.apptMeta}>
-                                {appt.veterinarian.fullName} · {fmtDateTime(appt.startDate)}
+                                {appt.veterinarianName} · {fmtDateTime(appt.startDate)}
                             </span>
                         </div>
                         <span className={styles.apptPrice}>€{appt.totalPrice.toFixed(2)}</span>
