@@ -9,4 +9,5 @@ public interface IAppointmentService
     public Task<ScheduledAppointmentResponseDto> ScheduleHomeAsync(HomeAppointmentRequestDto dto);
     public Task<ScheduledAppointmentResponseDto> ScheduleClinicAsync(ClinicAppointmentRequestDto dto);
     public Task<DiscountInfoDto> ValidateDiscountAsync(string promoCode);
+    public Task<List<ScheduledAppointmentResponseDto>> GetCustomerAppointmentsAsync(Guid customerId);
 }

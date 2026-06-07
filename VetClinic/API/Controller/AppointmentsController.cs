@@ -54,6 +54,17 @@ public class AppointmentsController : ControllerBase
         catch (InvalidOperationException ex) { return UnprocessableEntity(ex.Message); }
     }
 
+    [HttpGet]
+    public async Task<IActionResult> GetCustomerAppointments([FromQuery] Guid customerId)
+    {
+        try
+        {
+            var result = await _appointmentsService.GetCustomerAppointmentsAsync(customerId);
+            return Ok(result);
+        }
+        catch (KeyNotFoundException ex) { return NotFound(ex.Message); }
+    }
+
     [HttpGet("validate-discount")]
     public async Task<IActionResult> ValidateDiscountAsync([FromQuery] string code)
     {

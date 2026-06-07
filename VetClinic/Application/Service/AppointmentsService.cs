@@ -206,4 +206,19 @@ public class AppointmentsService : IAppointmentService
 
         return AppointmentMapper.ToResponseDto(appointment);
     }
+
+    public async Task<List<ScheduledAppointmentResponseDto>> GetCustomerAppointmentsAsync(Guid customerId)
+    {
+        var appointments = await _context.Appointments
+            .Where(a => a.CustomerId == customerId)
+            .Include(a => a.Veterinarian)
+            .Include(a => a.Animals)
+            .Include(a => a.Treatment)
+            .Include(a => a.Discounts)
+            .Include(a => a.Cabinet)
+            .OrderByDescending(a => a.StartDate)
+            .ToListAsync();
+
+        return appointments.Select(AppointmentMapper.ToResponseDto).ToList();
+    }
 }

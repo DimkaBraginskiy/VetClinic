@@ -1,4 +1,4 @@
-import type { VetAvailability } from '../types/appointment'
+import type { Appointment, VetAvailability } from '../types/appointment'
 
 const BASE = 'http://localhost:5258/api'
 
@@ -21,6 +21,12 @@ export async function getAvailableVets(
 export async function validateDiscount(code: string): Promise<{ promoCode: string; percentage: number }> {
     const res = await fetch(`${BASE}/appointments/validate-discount?code=${encodeURIComponent(code)}`)
     if (!res.ok) throw new Error('Invalid or unknown promo code')
+    return res.json()
+}
+
+export async function getAppointments(customerId: string): Promise<Appointment[]> {
+    const res = await fetch(`${BASE}/appointments?customerId=${customerId}`)
+    if (!res.ok) throw new Error('Failed to fetch appointments')
     return res.json()
 }
 

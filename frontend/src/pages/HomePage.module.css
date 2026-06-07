@@ -19,6 +19,8 @@
 .cardLabel { font-size: 0.82rem; color: var(--text); }
 .cardValue  { font-size: 1.8rem; font-weight: 600; color: var(--text-h); }
 
+/* ── Upcoming section ────────────────────────────────── */
+
 .section {
     background: var(--glass-bg);
     backdrop-filter: var(--glass-blur);
@@ -26,7 +28,62 @@
     border: 1px solid var(--border);
     border-radius: 14px;
     padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
 }
 
-.section h3 { margin: 0 0 1rem; font-size: 1rem; }
-.empty      { color: var(--text); font-size: 0.9rem; }
+.sectionHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.sectionHeader h3 { margin: 0; font-size: 1rem; color: var(--text-h); }
+
+.seeAllBtn {
+    background: none;
+    border: none;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--accent);
+    cursor: pointer;
+    padding: 0;
+    font-family: inherit;
+}
+
+.seeAllBtn:hover { opacity: 0.75; }
+
+/* ── Appointment row ─────────────────────────────────── */
+
+.apptRow {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.apptRow:last-child { border-bottom: none; }
+
+.apptIcon { font-size: 1.5rem; flex-shrink: 0; }
+
+.apptInfo {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.apptTitle { font-size: 0.9rem; font-weight: 600; color: var(--text-h); }
+.apptMeta  { font-size: 0.75rem; color: var(--text); }
+
+.apptPrice {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text-h);
+    flex-shrink: 0;
+}
+
+.empty { color: var(--text); font-size: 0.9rem; margin: 0; }

@@ -8,17 +8,91 @@
     flex: 1;
     display: flex;
     flex-direction: column;
+    gap: 1.5rem;
 }
 
-.panelHeader {
+.panelHeader h2 { margin: 0; font-size: 1.2rem; color: var(--text-h); }
+
+/* ── Section groups ──────────────────────────────────── */
+
+.section { display: flex; flex-direction: column; gap: 0.75rem; }
+
+.sectionTitle {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+    margin: 0;
+}
+
+.list { display: flex; flex-direction: column; gap: 0.625rem; }
+
+/* ── Appointment card ────────────────────────────────── */
+
+.card {
+    background: rgba(255,255,255,0.55);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
     display: flex;
-    align-items: center;
-    margin-bottom: 1.5rem;
+    flex-direction: column;
+    gap: 0.625rem;
+    transition: border-color 0.15s, box-shadow 0.15s;
 }
 
-.panelHeader h2 { margin: 0; font-size: 1.2rem; }
+.card:hover { border-color: var(--accent-border); box-shadow: var(--shadow); }
 
-/* empty state fills remaining space and centers */
+.cardCancelled { opacity: 0.55; }
+
+.cardTop {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.875rem;
+}
+
+.modeIcon { font-size: 1.75rem; flex-shrink: 0; line-height: 1; margin-top: 0.1rem; }
+
+.cardMain {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.cardTitle { font-size: 0.95rem; font-weight: 600; color: var(--text-h); }
+.cardMeta  { font-size: 0.78rem; color: var(--text); }
+
+.cardBottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--border);
+}
+
+.cardDate  { font-size: 0.82rem; color: var(--text); }
+.cardPrice { font-size: 0.95rem; font-weight: 700; color: var(--text-h); }
+
+/* ── Status badge ────────────────────────────────────── */
+
+.statusBadge {
+    flex-shrink: 0;
+    padding: 0.25rem 0.625rem;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.statusScheduled  { background: rgba(124,58,237,0.12);  color: #6d28d9; }
+.statusInProgress { background: rgba(245,158,11,0.15);  color: #b45309; }
+.statusCompleted  { background: rgba(16,185,129,0.12);  color: #065f46; }
+.statusCancelled  { background: rgba(107,114,128,0.15); color: #6b7280; }
+
+/* ── Empty / loading states ──────────────────────────── */
+
 .emptyState {
     flex: 1;
     display: flex;
@@ -27,12 +101,16 @@
     justify-content: center;
     gap: 0.5rem;
     color: var(--text);
+    padding: 3rem 0;
 }
 
-.emptyIcon  { font-size: 2.5rem; }
-.emptyText  { font-size: 1rem; }
+.emptyIcon { font-size: 2.5rem; }
+.emptyText { font-size: 1rem; }
+.hint      { color: var(--text); font-size: 0.9rem; }
+.errorMsg  { color: #dc2626; font-size: 0.9rem; }
 
-/* fixed FAB bottom-right */
+/* ── FAB ─────────────────────────────────────────────── */
+
 .fab {
     position: fixed;
     bottom: 2rem;
@@ -48,9 +126,7 @@
     box-shadow: 0 4px 20px rgba(124, 58, 237, 0.35);
     transition: opacity 0.15s, transform 0.15s;
     z-index: 50;
+    font-family: inherit;
 }
 
-.fab:hover {
-    opacity: 0.9;
-    transform: translateY(-2px);
-}
+.fab:hover { opacity: 0.9; transform: translateY(-2px); }
