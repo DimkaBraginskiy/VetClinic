@@ -1,7 +1,7 @@
-using VetClinic.Application.DTOs;
 using VetClinic.Application.DTOs.Request;
+using VetClinic.Application.DTOs.Response;
 
-namespace VetClinic.Application.Services;
+namespace VetClinic.Application.Interface;
 
 public interface IAppointmentService
 {

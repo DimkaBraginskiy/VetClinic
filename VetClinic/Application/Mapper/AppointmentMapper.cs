@@ -1,4 +1,5 @@
 using VetClinic.Application.DTOs;
+using VetClinic.Application.DTOs.Response;
 using VetClinic.Domain.Entities;
 
 namespace VetClinic.Application.Mapper;

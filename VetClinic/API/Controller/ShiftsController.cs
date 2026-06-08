@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using VetClinic.Application.DTOs.Request;
-using VetClinic.Application.Services;
+using VetClinic.Application.Interface;
 
 namespace VetClinic.API.Controller;
 
@@ -13,6 +13,17 @@ public class ShiftsController : ControllerBase
     public ShiftsController(IShiftsService shiftsService)
     {
         _shiftsService = shiftsService;
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetVetShiftsAsync([FromQuery] Guid veterinarianId)
+    {
+        try
+        {
+            var result = await _shiftsService.GetVetShiftsAsync(veterinarianId);
+            return Ok(result);
+        }
+        catch (KeyNotFoundException ex) { return NotFound(ex.Message); }
     }
 
     [HttpPost]

@@ -1,4 +1,4 @@
-namespace VetClinic.Application.DTOs;
+namespace VetClinic.Application.DTOs.Response;
 
 public class AppointmentMimimalResponseDto
 {

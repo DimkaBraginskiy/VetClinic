@@ -1,8 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using VetClinic.Application.DTOs;
 using VetClinic.Application.DTOs.Request;
+using VetClinic.Application.DTOs.Response;
+using VetClinic.Application.Interface;
 using VetClinic.Application.Mapper;
-using VetClinic.Application.Services;
 using VetClinic.Domain.Entities;
 using VetClinic.Domain.Enums;
 using VetClinic.Infrastructure;

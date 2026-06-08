@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using VetClinic.Application.Interface;
 using VetClinic.Application.Service;
-using VetClinic.Application.Services;
 using VetClinic.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);

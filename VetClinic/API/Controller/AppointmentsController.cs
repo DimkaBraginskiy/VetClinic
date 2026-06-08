@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using VetClinic.Application.DTOs.Request;
-using VetClinic.Application.Services;
+using VetClinic.Application.Interface;
 
 namespace VetClinic.API.Controller;
 

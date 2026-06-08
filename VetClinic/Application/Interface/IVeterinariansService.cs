@@ -1,7 +1,7 @@
-﻿using VetClinic.Application.DTOs;
-using VetClinic.Application.DTOs.Request;
+﻿using VetClinic.Application.DTOs.Request;
+using VetClinic.Application.DTOs.Response;
 
-namespace VetClinic.Application.Services;
+namespace VetClinic.Application.Interface;
 
 public interface IVeterinariansService
 {
@@ -9,4 +9,6 @@ public interface IVeterinariansService
     public Task DeleteVeterinarianAsync(Guid id);
     public Task<List<VeterinarianDatesResponseDto>> GetAvailableVeterinariansAsync(
         DateOnly date, Guid? clinicId, string? treatmentType);
+    public Task<Guid?> GetVetIdByEmailAsync(string email);
+    public Task<VetProfileDto> GetVetProfileAsync(Guid id);
 }

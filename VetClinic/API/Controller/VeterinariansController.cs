@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using VetClinic.Application.DTOs.Request;
-using VetClinic.Application.Services;
+using VetClinic.Application.Interface;
 
 namespace VetClinic.API.Controller;
 
@@ -71,8 +71,13 @@ public class VeterinariansController : ControllerBase
     }
 
     [HttpGet("{id:guid}")]
-    public IActionResult GetVeterinarianByIdAsync(Guid id)
+    public async Task<IActionResult> GetVeterinarianByIdAsync(Guid id)
     {
-        return Ok(new { id });
+        try
+        {
+            var result = await _veterinariansService.GetVetProfileAsync(id);
+            return Ok(result);
+        }
+        catch (KeyNotFoundException ex) { return NotFound(ex.Message); }
     }
 }

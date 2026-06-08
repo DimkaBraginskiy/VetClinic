@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
+using VetClinic.Application.DTOs;
 using VetClinic.Application.DTOs.Request;
-using VetClinic.Application.Services;
+using VetClinic.Application.DTOs.Response;
+using VetClinic.Application.Interface;
 using VetClinic.Domain.Entities;
 using VetClinic.Infrastructure;
 
@@ -45,10 +47,29 @@ public class ShiftsService : IShiftsService
             .FirstOrDefaultAsync(s => s.Id == id)
             ?? throw new KeyNotFoundException($"Shift '{id}' not found.");
 
-        
-        shift.Delete();
+        var hasAppointment = await _context.Appointments.AnyAsync(a =>
+            a.VeterinarianId == shift.VeterinarianId &&
+            a.Status != AppointmentStatus.Cancelled &&
+            a.StartDate >= shift.StartTime &&
+            a.StartDate < shift.EndTime);
 
+        if (hasAppointment)
+            throw new ArgumentException("Cannot remove shift: there is an appointment scheduled during this time :(");
+
+        shift.Delete();
         _context.Shifts.Remove(shift);
         await _context.SaveChangesAsync();
+    }
+
+    public async Task<List<ShiftResponseDto>> GetVetShiftsAsync(Guid veterinarianId)
+    {
+        var shifts = await _context.Shifts
+            .Where(s => s.VeterinarianId == veterinarianId)
+            .Include(s => s.Clinic)
+            .OrderBy(s => s.StartTime)
+            .ToListAsync();
+
+        return shifts.Select(s => new ShiftResponseDto(s.Id, s.StartTime, s.EndTime, s.ClinicId, s.Clinic.Name))
+                     .ToList();
     }
 }

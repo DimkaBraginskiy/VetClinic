@@ -1,7 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using VetClinic.Application.DTOs;
 using VetClinic.Application.DTOs.Request;
-using VetClinic.Application.Services;
+using VetClinic.Application.DTOs.Response;
+using VetClinic.Application.Interface;
 using VetClinic.Domain.Entities;
 using VetClinic.Domain.Enums;
 using VetClinic.Infrastructure;
@@ -59,6 +60,23 @@ public class VeterinariansService : IVeterinariansService
         await _context.SaveChangesAsync();
 
         return vet.Id;
+    }
+
+    public async Task<Guid?> GetVetIdByEmailAsync(string email)
+    {
+        var vet = await _context.Veterinarians.FirstOrDefaultAsync(v => v.Email == email);
+        return vet?.Id;
+    }
+
+    public async Task<VetProfileDto> GetVetProfileAsync(Guid id)
+    {
+        var vet = await _context.Veterinarians
+            .Include(v => v.Clinic)
+            .FirstOrDefaultAsync(v => v.Id == id)
+            ?? throw new KeyNotFoundException($"Veterinarian '{id}' not found.");
+
+        return new VetProfileDto(vet.Id, vet.GetFullName(), vet.Type.ToString(),
+            vet.ClinicVetId, vet.ClinicId, vet.Clinic.Name);
     }
 
     public async Task DeleteVeterinarianAsync(Guid id)

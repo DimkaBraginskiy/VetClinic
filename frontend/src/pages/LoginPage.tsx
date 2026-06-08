@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import styles from './LoginPage.module.css'
-import { login } from '../api/auth'
+import { login, isVet } from '../api/auth'
 
 export default function LoginPage() {
     const [email, setEmail]       = useState('')
@@ -16,7 +16,7 @@ export default function LoginPage() {
         setLoading(true)
         try {
             await login(email, password)
-            navigate('/home')
+            navigate(isVet() ? '/vet' : '/home')
         } catch (err: unknown) {
             setError(err instanceof Error ? err.message : 'Something went wrong.')
         } finally {

@@ -1,6 +1,6 @@
 ﻿using VetClinic.Domain.Enums;
 
-namespace VetClinic.Application.DTOs;
+namespace VetClinic.Application.DTOs.Response;
 
 public class ScheduledAppointmentResponseDto
 {
